@@ -17,5 +17,5 @@ Get-ChildItem -Path $inputDir -Filter *.yaml | ForEach-Object {
     # Run the NSwag command
     Write-Host "Processing $($_.FullName) -> $outputFile"
     #nswag openapi2csclient /GenerateExceptionClasses:false  /input:$($_.FullName) /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$className /GeneratePrepareRequestAndProcessResponseAsAsyncMethods:true  /ClientBaseClass:BaseClient /TemplateDirectory:openapi/templates
-    nswag openapi2csclient /GenerateExceptionClasses:false  /input:$($_.FullName) /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$className /TemplateDirectory:openapi/templates
+    nswag openapi2csclient   /input:$($_.FullName) /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$className /TemplateDirectory:openapi/templates
 }

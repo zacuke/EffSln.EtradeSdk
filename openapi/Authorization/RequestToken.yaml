@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: E*TRADE Authorization API
+  title: https://apisb.etrade.com/docs/api/authorization/request_token.html
   version: "1.0.0"
 servers:
   - url: https://api.etrade.com
@@ -17,18 +17,20 @@ paths:
           content:
             application/x-www-form-urlencoded:
               schema:
-                type: object
-                properties:
-                  oauth_token:
-                    type: string
-                  oauth_token_secret:
-                    type: string
-                  oauth_callback_confirmed:
-                    type: string
+                $ref: "#/components/schemas/OAuthRequestTokenResponse"
         '400':
           description: There is issue with input
         '500':
           description: An unexpected error has occurred. The error has been logged and is being investigated.
 
-components: {}
-security: []
+components:
+  schemas:
+    OAuthRequestTokenResponse:
+      type: object
+      properties:
+        oauth_token:
+          type: string
+        oauth_token_secret:
+          type: string
+        oauth_callback_confirmed:
+          type: string
