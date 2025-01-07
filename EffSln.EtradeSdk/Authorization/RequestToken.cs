@@ -18,7 +18,7 @@
 #pragma warning disable 8625 // Disable "CS8625 Cannot convert null literal to non-nullable reference type"
 #pragma warning disable 8765 // Disable "CS8765 Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes)."
 
-namespace EffSln.EtradeSdk.AuthorizationRequestToken
+namespace EffSln.EtradeSdk.Authorization.RequestToken
 {
     using System = global::System;
 
@@ -37,7 +37,7 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
         public RequestTokenClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://api.etrade.com/v1";
+            BaseUrl = "https://api.etrade.com";
             _httpClient = httpClient;
             Initialize();
         }
@@ -74,21 +74,13 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
         /// Get Request Token
         /// </summary>
         /// <remarks>
-        /// This API returns a temporary request token that begins the OAuth process. 
-        /// <br/>The request token must accompany the user to the authorization page, where the user 
-        /// <br/>will grant your application limited access to the account. The token expires after five minutes.
+        /// Initiates the OAuth process by returning a temporary request token.
         /// </remarks>
-        /// <param name="oauth_consumer_key">The value used by the consumer to identify itself to the service provider.</param>
-        /// <param name="oauth_timestamp">The date and time of the request, in epoch time. Must be accurate within five minutes.</param>
-        /// <param name="oauth_nonce">A nonce, as described in the authorization guide - roughly, an arbitrary or random value that cannot be used again with the same timestamp.</param>
-        /// <param name="oauth_signature_method">The signature method used by the consumer to sign the request. The only supported value is HMAC-SHA1.</param>
-        /// <param name="oauth_signature">Signature generated with the shared secret and token secret using the specified oauth_signature_method, as described in OAuth documentation.</param>
-        /// <param name="oauth_callback">Callback information, as described elsewhere. Must always be set to 'oob', whether using a callback or not.</param>
         /// <returns>Successful Operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response> GetRequestTokenAsync(string oauth_consumer_key, string oauth_timestamp, string oauth_nonce, Oauth_signature_method oauth_signature_method, string oauth_signature, Oauth_callback oauth_callback)
+        public virtual System.Threading.Tasks.Task<Response> GetRequestTokenAsync()
         {
-            return GetRequestTokenAsync(oauth_consumer_key, oauth_timestamp, oauth_nonce, oauth_signature_method, oauth_signature, oauth_callback, System.Threading.CancellationToken.None);
+            return GetRequestTokenAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -96,19 +88,11 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
         /// Get Request Token
         /// </summary>
         /// <remarks>
-        /// This API returns a temporary request token that begins the OAuth process. 
-        /// <br/>The request token must accompany the user to the authorization page, where the user 
-        /// <br/>will grant your application limited access to the account. The token expires after five minutes.
+        /// Initiates the OAuth process by returning a temporary request token.
         /// </remarks>
-        /// <param name="oauth_consumer_key">The value used by the consumer to identify itself to the service provider.</param>
-        /// <param name="oauth_timestamp">The date and time of the request, in epoch time. Must be accurate within five minutes.</param>
-        /// <param name="oauth_nonce">A nonce, as described in the authorization guide - roughly, an arbitrary or random value that cannot be used again with the same timestamp.</param>
-        /// <param name="oauth_signature_method">The signature method used by the consumer to sign the request. The only supported value is HMAC-SHA1.</param>
-        /// <param name="oauth_signature">Signature generated with the shared secret and token secret using the specified oauth_signature_method, as described in OAuth documentation.</param>
-        /// <param name="oauth_callback">Callback information, as described elsewhere. Must always be set to 'oob', whether using a callback or not.</param>
         /// <returns>Successful Operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response> GetRequestTokenAsync(string oauth_consumer_key, string oauth_timestamp, string oauth_nonce, Oauth_signature_method oauth_signature_method, string oauth_signature, Oauth_callback oauth_callback, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Response> GetRequestTokenAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -116,32 +100,8 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (oauth_consumer_key == null)
-                        throw new System.ArgumentNullException("oauth_consumer_key");
-                    request_.Headers.TryAddWithoutValidation("oauth_consumer_key", ConvertToString(oauth_consumer_key, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_timestamp == null)
-                        throw new System.ArgumentNullException("oauth_timestamp");
-                    request_.Headers.TryAddWithoutValidation("oauth_timestamp", ConvertToString(oauth_timestamp, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_nonce == null)
-                        throw new System.ArgumentNullException("oauth_nonce");
-                    request_.Headers.TryAddWithoutValidation("oauth_nonce", ConvertToString(oauth_nonce, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_signature_method == null)
-                        throw new System.ArgumentNullException("oauth_signature_method");
-                    request_.Headers.TryAddWithoutValidation("oauth_signature_method", ConvertToString(oauth_signature_method, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_signature == null)
-                        throw new System.ArgumentNullException("oauth_signature");
-                    request_.Headers.TryAddWithoutValidation("oauth_signature", ConvertToString(oauth_signature, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_callback == null)
-                        throw new System.ArgumentNullException("oauth_callback");
-                    request_.Headers.TryAddWithoutValidation("oauth_callback", ConvertToString(oauth_callback, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/x-www-form-urlencoded"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
@@ -184,7 +144,7 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
                         if (status_ == 400)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("There is an issue with input.", status_, responseText_, headers_, null);
+                            throw new ApiException("There is issue with input", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 500)
@@ -225,7 +185,7 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
             public string Text { get; }
         }
 
-        public bool ReadResponseAsString { get; set; }
+        public bool ReadResponseAsString { get; set; } = true;
 
         protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(System.Net.Http.HttpResponseMessage response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Threading.CancellationToken cancellationToken)
         {
@@ -237,6 +197,7 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
             if (ReadResponseAsString)
             {
                 var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                responseText = ConvertUrlFormToJson(responseText);
                 try
                 {
                     var typedBody = System.Text.Json.JsonSerializer.Deserialize<T>(responseText, JsonSerializerSettings);
@@ -264,6 +225,20 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
                     throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
                 }
             }
+        }
+
+        private string ConvertUrlFormToJson(string input){
+            // Parse the response into a collection using HttpUtility
+            var queryParams = System.Web.HttpUtility.ParseQueryString(input);
+
+            // Create a dictionary to hold the parsed values
+            var dictionary = new System.Collections.Generic.Dictionary<string, string>();
+            foreach (string key in queryParams.Keys)
+            {
+                dictionary[key] = queryParams[key];
+            }
+
+            return System.Text.Json.JsonSerializer.Serialize(dictionary);
         }
 
         private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)
@@ -322,49 +297,17 @@ namespace EffSln.EtradeSdk.AuthorizationRequestToken
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum Oauth_signature_method
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"HMAC-SHA1")]
-        HMACSHA1 = 0,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum Oauth_callback
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"oob")]
-        Oob = 0,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Response
     {
-        /// <summary>
-        /// The consumer's request token.
-        /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("oauth_token")]
         public string Oauth_token { get; set; }
 
-        /// <summary>
-        /// The token secret.
-        /// </summary>
-
         [System.Text.Json.Serialization.JsonPropertyName("oauth_token_secret")]
         public string Oauth_token_secret { get; set; }
 
-        /// <summary>
-        /// Returns true if a callback URL is configured for the current consumer key, otherwise false. Callbacks are described under the Authorize Application API.
-        /// </summary>
-
         [System.Text.Json.Serialization.JsonPropertyName("oauth_callback_confirmed")]
         public string Oauth_callback_confirmed { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("example")]
-        public object Example { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

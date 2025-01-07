@@ -18,7 +18,7 @@
 #pragma warning disable 8625 // Disable "CS8625 Cannot convert null literal to non-nullable reference type"
 #pragma warning disable 8765 // Disable "CS8765 Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes)."
 
-namespace EffSln.EtradeSdk.AuthorizationGetAccessToken
+namespace EffSln.EtradeSdk.Authorization.GetAccessToken
 {
     using System = global::System;
 
@@ -253,7 +253,7 @@ namespace EffSln.EtradeSdk.AuthorizationGetAccessToken
             public string Text { get; }
         }
 
-        public bool ReadResponseAsString { get; set; }
+        public bool ReadResponseAsString { get; set; } = true;
 
         protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(System.Net.Http.HttpResponseMessage response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Threading.CancellationToken cancellationToken)
         {
@@ -265,6 +265,7 @@ namespace EffSln.EtradeSdk.AuthorizationGetAccessToken
             if (ReadResponseAsString)
             {
                 var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                responseText = ConvertUrlFormToJson(responseText);
                 try
                 {
                     var typedBody = System.Text.Json.JsonSerializer.Deserialize<T>(responseText, JsonSerializerSettings);
@@ -292,6 +293,20 @@ namespace EffSln.EtradeSdk.AuthorizationGetAccessToken
                     throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
                 }
             }
+        }
+
+        private string ConvertUrlFormToJson(string input){
+            // Parse the response into a collection using HttpUtility
+            var queryParams = System.Web.HttpUtility.ParseQueryString(input);
+
+            // Create a dictionary to hold the parsed values
+            var dictionary = new System.Collections.Generic.Dictionary<string, string>();
+            foreach (string key in queryParams.Keys)
+            {
+                dictionary[key] = queryParams[key];
+            }
+
+            return System.Text.Json.JsonSerializer.Serialize(dictionary);
         }
 
         private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)

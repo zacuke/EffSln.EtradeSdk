@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "EffSln.EtradeSdkTest": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

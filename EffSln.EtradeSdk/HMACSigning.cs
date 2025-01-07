@@ -31,7 +31,7 @@ namespace EffSln.EtradeSdk
             var baseString = $"{httpMethod.ToUpper()}&{encodedUrl}&{PercentEncode(parameterString)}";
 
             // Step 6: Call GenerateSignature2 to generate the signature using the HMAC-SHA1 mechanism
-            return HMACEncode(baseString, secretKey, tokenSecret);
+            return  HMACEncode(baseString, secretKey, tokenSecret) ;
         }
         private static string HMACEncode(string baseString, string secretKey, string tokenSecret = "")
         {
@@ -46,7 +46,7 @@ namespace EffSln.EtradeSdk
             }
         }
 
-        private static string PercentEncode(string value)
+        public static string PercentEncode(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
