@@ -1,7 +1,6 @@
 openapi: 3.1.1
 info:
-  title: Returns an access token.
-  description: https://apisb.etrade.com/docs/api/authorization/get_access_token.html
+  title: Authorization API
   version: 1.0.0
 servers:
   - url: https://api.etrade.com
@@ -44,6 +43,23 @@ paths:
         '500':
           description: An unexpected error has occurred. The error has been logged and is being investigated.
 
+  /oauth/request_token:
+    get:
+      summary: Get Request Token
+      description: This API returns a temporary request token that begins the OAuth process. The request token must accompany the user to the authorization page, where the user will grant your application limited access to the account. The token expires after five minutes.
+      operationId: getRequestToken
+      responses:
+        '200':
+          description: Successful Operation.
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: "#/components/schemas/OAuthGetRequestTokenResponse"
+        '400':
+          description: There is issue with input
+        '500':
+          description: An unexpected error has occurred. The error has been logged and is being investigated.
+
 components:
   schemas:
     OAuthGetAccessTokenResponse:
@@ -52,4 +68,13 @@ components:
         oauth_token:
           type: string
         oauth_token_secret:
+          type: string
+    OAuthGetRequestTokenResponse:
+      type: object
+      properties:
+        oauth_token:
+          type: string
+        oauth_token_secret:
+          type: string
+        oauth_callback_confirmed:
           type: string

@@ -1,15 +1,12 @@
-﻿using EffSln.EtradeSdk;
-using Microsoft.Extensions.Configuration;
+﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
-using System.Text;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
-using System.Reflection.PortableExecutable;
-
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+namespace EffSln.EtradeSdk;
 public class OAuthDelegatingHandler : DelegatingHandler
 {
     private readonly string _key;
@@ -28,6 +25,7 @@ public class OAuthDelegatingHandler : DelegatingHandler
         var oauth_token_secret = string.Empty;
         var oauth_verifier = string.Empty;
 
+        //bit of a hack because nswag
         if (request.Headers.Contains("oauth_token"))
         {
             oauth_token = request.Headers.GetValues("oauth_token").First();
@@ -43,6 +41,7 @@ public class OAuthDelegatingHandler : DelegatingHandler
             oauth_verifier = request.Headers.GetValues("oauth_verifier").First();
             request.Headers.Remove("oauth_verifier");
         }
+
         // 1. Generate OAuth parameters for the Authorization header
         var httpMethod = request.Method.Method.ToLower();
         var url = request.RequestUri.ToString();
@@ -94,13 +93,11 @@ public class OAuthDelegatingHandler : DelegatingHandler
         // Generate a long value similar to Java's nextLong
         long generatedNo = (long)(secureRand.NextDouble() * long.MaxValue);
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(generatedNo.ToString()));
-
     }
 
     private static string ComputeTimestamp()
     {
         return DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-
     }
 
     private static string GenerateSignature(string httpMethod, string Url, Dictionary<string, string> keyValuePairs, string secretKey, string tokenSecret = "")
@@ -133,11 +130,9 @@ public class OAuthDelegatingHandler : DelegatingHandler
         var finalSecret = secretKey + "&" + PercentEncode(tokenSecret);
 
         // Compute the HMAC-SHA1 hash using the signingKey and the baseString
-        using (var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(finalSecret)))
-        {
-            byte[] hash = hmac.ComputeHash(Encoding.ASCII.GetBytes(baseString));
-            return Convert.ToBase64String(hash); // Convert hash to Base64 string
-        }
+        using var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(finalSecret));
+        byte[] hash = hmac.ComputeHash(Encoding.ASCII.GetBytes(baseString));
+        return Convert.ToBase64String(hash); // Convert hash to Base64 string
     }
 
     private static string PercentEncode(string value)

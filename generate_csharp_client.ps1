@@ -10,9 +10,9 @@ Get-ChildItem -Path $inputDir -Filter *.yaml | ForEach-Object {
     # Construct the output file path
     $outputFile = Join-Path $outputDir ("$fileName.cs")
 
-    $className = "${fileName}Client"
+    $className = "${fileName}"
     $outputDirClean = $outputDir.replace('/', '.')
-    $namespace = "${outputDirClean}.${fileName}"
+    $namespace = "${outputDirClean}" #".${fileName}"
  
     # Run the NSwag command
     Write-Host "Processing $($_.FullName) -> $outputFile"
