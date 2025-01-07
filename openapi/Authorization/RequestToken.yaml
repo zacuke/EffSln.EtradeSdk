@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Authorization API
+  description: |
+    This API returns a temporary request token that begins the OAuth process. 
+    The request token must accompany the user to the authorization page, where the user 
+    will grant your application limited access to the account. The token expires after five minutes.
+  version: 1.0.0
+servers:
+  - url: https://api.etrade.com/v1
+    description: Production Environment
+paths:
+  /oauth/request_token:
+    get:
+      summary: Get Request Token
+      description: |
+        This API returns a temporary request token that begins the OAuth process. 
+        The request token must accompany the user to the authorization page, where the user 
+        will grant your application limited access to the account. The token expires after five minutes.
+      operationId: getRequestToken
+      parameters:
+        - name: oauth_consumer_key
+          in: header
+          required: true
+          description: The value used by the consumer to identify itself to the service provider.
+          schema:
+            type: string
+        - name: oauth_timestamp
+          in: header
+          required: true
+          description: The date and time of the request, in epoch time. Must be accurate within five minutes.
+          schema:
+            type: string
+        - name: oauth_nonce
+          in: header
+          required: true
+          description: A nonce, as described in the authorization guide - roughly, an arbitrary or random value that cannot be used again with the same timestamp.
+          schema:
+            type: string
+        - name: oauth_signature_method
+          in: header
+          required: true
+          description: The signature method used by the consumer to sign the request. The only supported value is HMAC-SHA1.
+          schema:
+            type: string
+            enum:
+              - HMAC-SHA1
+        - name: oauth_signature
+          in: header
+          required: true
+          description: Signature generated with the shared secret and token secret using the specified oauth_signature_method, as described in OAuth documentation.
+          schema:
+            type: string
+        - name: oauth_callback
+          in: header
+          required: true
+          description: Callback information, as described elsewhere. Must always be set to 'oob', whether using a callback or not.
+          schema:
+            type: string
+            enum:
+              - oob
+      responses:
+        '200':
+          description: Successful Operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  oauth_token:
+                    type: string
+                    description: The consumer's request token.
+                  oauth_token_secret:
+                    type: string
+                    description: The token secret.
+                  oauth_callback_confirmed:
+                    type: string
+                    description: Returns true if a callback URL is configured for the current consumer key, otherwise false. Callbacks are described under the Authorize Application API.
+                  example:
+                    oauth_token: "%2FiQRgQCRGPo7Xdk6G8QDSEzX0Jsy6sKNcULcDavAGgU%3D"
+                    oauth_token_secret: "%2FrC9scEpzcwSEMy4vE7nodSzPLqfRINnTNY4voczyFM%3D"
+                    oauth_callback_confirmed: "true"
+        '400':
+          description: There is an issue with input.
+        '500':
+          description: An unexpected error has occurred. The error has been logged and is being investigated.
+      examples:
+        requestUrlExample:
+          summary: Example Request URL
+          value: |
+            https://api.etrade.com/oauth/request_token
+        requestHeaderExample:
+          summary: Example HTTP Header
+          value: |
+            Authorization: OAuth realm="",oauth_callback="oob",
+            oauth_signature="FjoSQaFDKEDK1FJazlY3xArNflk%3D", oauth_nonce="LTg2ODUzOTQ5MTEzMTY3MzQwMzE%3D",
+            oauth_signature_method="HMAC-SHA1",oauth_consumer_key="282683cc9e4b8fc81dea6bc687d46758",
+            oauth_timestamp="1273254425"
+        responseExample:
+          summary: Example Response
+          value: |
+            oauth_token=%2FiQRgQCRGPo7Xdk6G8QDSEzX0Jsy6sKNcULcDavAGgU%3D&oauth_token_secret=%2FrC9scEpzcwSEMy4vE7nodSzPLqfRINnTNY4voczyFM%3D&oauth_callback_confirmed=true

@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Authorization API
+  description: Returns an access token used to authorize E*TRADE API calls.
+  version: 1.0.0
+servers:
+  - url: https://api.etrade.com/oauth
+
+paths:
+  /access_token:
+    get:
+      summary: Get Access Token
+      description: |
+        This method returns an access token, which confirms the user has authorized the application to access user data. 
+
+        All E*TRADE API calls (e.g., accountlist, placeequityorder) must include the access token along with 
+        the required headers: consumer key, timestamp, nonce, signature method, and signature.
+
+        The token expires at the end of the current calendar day (US Eastern). If unused for two hours, the 
+        token becomes inactive and must be reactivated or re-requested.
+      tags:
+        - Authentication
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: |
+            OAuth authorization string. Must include `realm`, `oauth_signature`, `oauth_nonce`, `oauth_signature_method`, `oauth_consumer_key`, `oauth_timestamp`, `oauth_verifier`, and `oauth_token`.
+          schema:
+            type: string
+        - name: oauth_consumer_key
+          in: header
+          required: true
+          description: Value used by the consumer to identify itself to the service provider.
+          schema:
+            type: string
+        - name: oauth_timestamp
+          in: header
+          required: true
+          description: Date and time of the request, in epoch time (accurate to within five minutes).
+          schema:
+            type: string
+        - name: oauth_nonce
+          in: header
+          required: true
+          description: Arbitrary random value that cannot be reused with the same timestamp.
+          schema:
+            type: string
+        - name: oauth_signature_method
+          in: header
+          required: true
+          description: Signature method used (only HMAC-SHA1 is supported).
+          schema:
+            type: string
+          example: HMAC-SHA1
+        - name: oauth_signature
+          in: header
+          required: true
+          description: Signature generated with the shared secret and token secret.
+          schema:
+            type: string
+        - name: oauth_token
+          in: header
+          required: true
+          description: Consumer's request token to be exchanged for an access token.
+          schema:
+            type: string
+        - name: oauth_verifier
+          in: header
+          required: true
+          description: Verification code received by the user to authenticate with the application.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Operation.
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  oauth_token:
+                    type: string
+                    description: The consumer’s access token.
+                  oauth_token_secret:
+                    type: string
+                    description: Token secret related to the access token.
+              example:
+                oauth_token: iQRgQCRGPo7Xdk6G8QDSEzX0Jsy6sKNcULcDavAGgU%3D
+                oauth_token_secret: 7RrC9scEpzcwSEMy4vE7nodSzPLqfRINnTNY4voczyFM%3D
+        '400':
+          description: Invalid input issues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameters
+        '500':
+          description: Unexpected server-side error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: An unexpected error has occurred. The error has been logged and is being investigated.
+
+components:
+  schemas:
+    AccessTokenResponse:
+      type: object
+      properties:
+        oauth_token:
+          type: string
+          description: The consumer's access token.
+        oauth_token_secret:
+          type: string
+          description: Token secret related to the access token.
