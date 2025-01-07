@@ -11,12 +11,13 @@ public class OAuthDelegatingHandler : DelegatingHandler
 {
     private readonly string _key;
     private readonly string _secret;
-
+    private readonly string _oauth_callback;
     public OAuthDelegatingHandler(EtradeSdkOptions options)
     {
         options.Validate();
         _key = options.Key;
         _secret = options.Secret;
+        _oauth_callback = options.Oauth_callback;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -66,8 +67,8 @@ public class OAuthDelegatingHandler : DelegatingHandler
         }
         else
         {
-            parameters.Add("oauth_callback", "oob");
-            parameters.Add("oauth_version", "1.0");
+            parameters.Add("oauth_callback", _oauth_callback);
+            //parameters.Add("oauth_version", "1.0");
         }
 
         var signature = GenerateSignature(httpMethod, url, parameters, _secret, oauth_token_secret);
