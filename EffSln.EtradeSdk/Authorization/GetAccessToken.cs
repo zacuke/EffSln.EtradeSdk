@@ -37,7 +37,7 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
         public GetAccessTokenClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://api.etrade.com/oauth";
+            BaseUrl = "https://api.etrade.com";
             _httpClient = httpClient;
             Initialize();
         }
@@ -74,27 +74,16 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
         /// Get Access Token
         /// </summary>
         /// <remarks>
-        /// This method returns an access token, which confirms the user has authorized the application to access user data. 
-        /// <br/>
-        /// <br/>All E*TRADE API calls (e.g., accountlist, placeequityorder) must include the access token along with 
-        /// <br/>the required headers: consumer key, timestamp, nonce, signature method, and signature.
-        /// <br/>
-        /// <br/>The token expires at the end of the current calendar day (US Eastern). If unused for two hours, the 
-        /// <br/>token becomes inactive and must be reactivated or re-requested.
+        /// This method returns an access token, which confirms that the user has authorized the application to access user data. All calls to the E*TRADE API (e.g., accountlist, placeequityorder, etc.) must include this access token along with the consumer key, timestamp, nonce, signature method, and signature. This can be done in the query string, but is typically done in the HTTP header. By default, the access token expires at the end of the current calendar day, US Eastern time. Once the token has expired, no requests will be processed for that token until the OAuth process is repeated - i.e., the user must log in again and the application must secure a new access token. During the current day, if the application does not make any requests for two hours, the access token is inactivated. In this inactive state, the access token is not valid for authorizing requests. It must be reactivated using the Renew Access Token API.
         /// </remarks>
-        /// <param name="authorization">OAuth authorization string. Must include `realm`, `oauth_signature`, `oauth_nonce`, `oauth_signature_method`, `oauth_consumer_key`, `oauth_timestamp`, `oauth_verifier`, and `oauth_token`.</param>
-        /// <param name="oauth_consumer_key">Value used by the consumer to identify itself to the service provider.</param>
-        /// <param name="oauth_timestamp">Date and time of the request, in epoch time (accurate to within five minutes).</param>
-        /// <param name="oauth_nonce">Arbitrary random value that cannot be reused with the same timestamp.</param>
-        /// <param name="oauth_signature_method">Signature method used (only HMAC-SHA1 is supported).</param>
-        /// <param name="oauth_signature">Signature generated with the shared secret and token secret.</param>
-        /// <param name="oauth_token">Consumer's request token to be exchanged for an access token.</param>
-        /// <param name="oauth_verifier">Verification code received by the user to authenticate with the application.</param>
+        /// <param name="oauth_token">Oauth_token received from the Get Request Token API.</param>
+        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Request Token API.</param>
+        /// <param name="oauth_verifier">The verification code received by the user to authenticate with the third-party application.</param>
         /// <returns>Successful Operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Response> TokenAsync(string authorization, string oauth_consumer_key, string oauth_timestamp, string oauth_nonce, string oauth_signature_method, string oauth_signature, string oauth_token, string oauth_verifier)
+        public virtual System.Threading.Tasks.Task<OAuthGetAccessTokenResponse> GetAccessTokenAsync(string oauth_token, string oauth_token_secret, string oauth_verifier)
         {
-            return TokenAsync(authorization, oauth_consumer_key, oauth_timestamp, oauth_nonce, oauth_signature_method, oauth_signature, oauth_token, oauth_verifier, System.Threading.CancellationToken.None);
+            return GetAccessTokenAsync(oauth_token, oauth_token_secret, oauth_verifier, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -102,25 +91,14 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
         /// Get Access Token
         /// </summary>
         /// <remarks>
-        /// This method returns an access token, which confirms the user has authorized the application to access user data. 
-        /// <br/>
-        /// <br/>All E*TRADE API calls (e.g., accountlist, placeequityorder) must include the access token along with 
-        /// <br/>the required headers: consumer key, timestamp, nonce, signature method, and signature.
-        /// <br/>
-        /// <br/>The token expires at the end of the current calendar day (US Eastern). If unused for two hours, the 
-        /// <br/>token becomes inactive and must be reactivated or re-requested.
+        /// This method returns an access token, which confirms that the user has authorized the application to access user data. All calls to the E*TRADE API (e.g., accountlist, placeequityorder, etc.) must include this access token along with the consumer key, timestamp, nonce, signature method, and signature. This can be done in the query string, but is typically done in the HTTP header. By default, the access token expires at the end of the current calendar day, US Eastern time. Once the token has expired, no requests will be processed for that token until the OAuth process is repeated - i.e., the user must log in again and the application must secure a new access token. During the current day, if the application does not make any requests for two hours, the access token is inactivated. In this inactive state, the access token is not valid for authorizing requests. It must be reactivated using the Renew Access Token API.
         /// </remarks>
-        /// <param name="authorization">OAuth authorization string. Must include `realm`, `oauth_signature`, `oauth_nonce`, `oauth_signature_method`, `oauth_consumer_key`, `oauth_timestamp`, `oauth_verifier`, and `oauth_token`.</param>
-        /// <param name="oauth_consumer_key">Value used by the consumer to identify itself to the service provider.</param>
-        /// <param name="oauth_timestamp">Date and time of the request, in epoch time (accurate to within five minutes).</param>
-        /// <param name="oauth_nonce">Arbitrary random value that cannot be reused with the same timestamp.</param>
-        /// <param name="oauth_signature_method">Signature method used (only HMAC-SHA1 is supported).</param>
-        /// <param name="oauth_signature">Signature generated with the shared secret and token secret.</param>
-        /// <param name="oauth_token">Consumer's request token to be exchanged for an access token.</param>
-        /// <param name="oauth_verifier">Verification code received by the user to authenticate with the application.</param>
+        /// <param name="oauth_token">Oauth_token received from the Get Request Token API.</param>
+        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Request Token API.</param>
+        /// <param name="oauth_verifier">The verification code received by the user to authenticate with the third-party application.</param>
         /// <returns>Successful Operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Response> TokenAsync(string authorization, string oauth_consumer_key, string oauth_timestamp, string oauth_nonce, string oauth_signature_method, string oauth_signature, string oauth_token, string oauth_verifier, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<OAuthGetAccessTokenResponse> GetAccessTokenAsync(string oauth_token, string oauth_token_secret, string oauth_verifier, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -129,33 +107,13 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
 
-                    if (authorization == null)
-                        throw new System.ArgumentNullException("authorization");
-                    request_.Headers.TryAddWithoutValidation("Authorization", ConvertToString(authorization, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_consumer_key == null)
-                        throw new System.ArgumentNullException("oauth_consumer_key");
-                    request_.Headers.TryAddWithoutValidation("oauth_consumer_key", ConvertToString(oauth_consumer_key, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_timestamp == null)
-                        throw new System.ArgumentNullException("oauth_timestamp");
-                    request_.Headers.TryAddWithoutValidation("oauth_timestamp", ConvertToString(oauth_timestamp, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_nonce == null)
-                        throw new System.ArgumentNullException("oauth_nonce");
-                    request_.Headers.TryAddWithoutValidation("oauth_nonce", ConvertToString(oauth_nonce, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_signature_method == null)
-                        throw new System.ArgumentNullException("oauth_signature_method");
-                    request_.Headers.TryAddWithoutValidation("oauth_signature_method", ConvertToString(oauth_signature_method, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_signature == null)
-                        throw new System.ArgumentNullException("oauth_signature");
-                    request_.Headers.TryAddWithoutValidation("oauth_signature", ConvertToString(oauth_signature, System.Globalization.CultureInfo.InvariantCulture));
-
                     if (oauth_token == null)
                         throw new System.ArgumentNullException("oauth_token");
                     request_.Headers.TryAddWithoutValidation("oauth_token", ConvertToString(oauth_token, System.Globalization.CultureInfo.InvariantCulture));
+
+                    if (oauth_token_secret == null)
+                        throw new System.ArgumentNullException("oauth_token_secret");
+                    request_.Headers.TryAddWithoutValidation("oauth_token_secret", ConvertToString(oauth_token_secret, System.Globalization.CultureInfo.InvariantCulture));
 
                     if (oauth_verifier == null)
                         throw new System.ArgumentNullException("oauth_verifier");
@@ -165,8 +123,8 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "access_token"
-                    urlBuilder_.Append("access_token");
+                    // Operation Path: "oauth/access_token"
+                    urlBuilder_.Append("oauth/access_token");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -193,7 +151,7 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<OAuthGetAccessTokenResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -203,22 +161,14 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
                         else
                         if (status_ == 400)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response2>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response2>("Invalid input issues.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("There is issue with input", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 500)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response3>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<Response3>("Unexpected server-side error.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("An unexpected error has occurred. The error has been logged and is being investigated.", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -365,85 +315,14 @@ namespace EffSln.EtradeSdk.Authorization.GetAccessToken
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class AccessTokenResponse
+    public partial class OAuthGetAccessTokenResponse
     {
-        /// <summary>
-        /// The consumer's access token.
-        /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("oauth_token")]
         public string Oauth_token { get; set; }
 
-        /// <summary>
-        /// Token secret related to the access token.
-        /// </summary>
-
         [System.Text.Json.Serialization.JsonPropertyName("oauth_token_secret")]
         public string Oauth_token_secret { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Response
-    {
-        /// <summary>
-        /// The consumer’s access token.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("oauth_token")]
-        public string Oauth_token { get; set; }
-
-        /// <summary>
-        /// Token secret related to the access token.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("oauth_token_secret")]
-        public string Oauth_token_secret { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Response2
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("error")]
-        public string Error { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Response3
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("error")]
-        public string Error { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

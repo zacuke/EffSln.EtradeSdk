@@ -1,11 +1,8 @@
 ﻿
 
 using EffSln.EtradeSdk;
-using Microsoft.Extensions.Configuration;
-using EffSln.EtradeSdk.Authorization.RequestToken;
-using Microsoft.Extensions.Hosting;
-using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace EffSln.EtradeSdkTest
 {

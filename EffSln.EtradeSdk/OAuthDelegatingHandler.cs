@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Reflection.PortableExecutable;
 
 public class OAuthDelegatingHandler : DelegatingHandler
 {
@@ -23,6 +24,25 @@ public class OAuthDelegatingHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        var oauth_token = string.Empty;
+        var oauth_token_secret = string.Empty;
+        var oauth_verifier = string.Empty;
+
+        if (request.Headers.Contains("oauth_token"))
+        {
+            oauth_token = request.Headers.GetValues("oauth_token").First();
+            request.Headers.Remove("oauth_token");
+        }
+        if (request.Headers.Contains("oauth_token_secret"))
+        {
+            oauth_token_secret = request.Headers.GetValues("oauth_token_secret").First();
+            request.Headers.Remove("oauth_token_secret");
+        }
+        if (request.Headers.Contains("oauth_verifier"))
+        {
+            oauth_verifier = request.Headers.GetValues("oauth_verifier").First();
+            request.Headers.Remove("oauth_verifier");
+        }
         // 1. Generate OAuth parameters for the Authorization header
         var httpMethod = request.Method.Method.ToLower();
         var url = request.RequestUri.ToString();
@@ -34,15 +54,31 @@ public class OAuthDelegatingHandler : DelegatingHandler
             { "oauth_nonce", nonce },
             { "oauth_timestamp", timestamp },
             { "oauth_signature_method", "HMAC-SHA1" },
-            { "oauth_version", "1.0" },
-            { "oauth_callback", "oob" }
+
         };
 
-        var signature = GenerateSignature(httpMethod, url, parameters, _secret);
+        if (oauth_token != string.Empty)
+        {
+            parameters.Add("oauth_token", oauth_token);
+            if (oauth_verifier != string.Empty)
+            {
+                parameters.Add("oauth_verifier", oauth_verifier);
+            }
+        }
+        else
+        {
+            parameters.Add("oauth_callback", "oob");
+            parameters.Add("oauth_version", "1.0");
+        }
+
+        var signature = GenerateSignature(httpMethod, url, parameters, _secret, oauth_token_secret);
 
         // 2. Build the dynamically signed Authorization header
-        var authorizationHeader = $"OAuth oauth_consumer_key=\"{_key}\",oauth_timestamp=\"{timestamp}\",oauth_nonce=\"{PercentEncode(nonce)}\",oauth_signature_method=\"HMAC-SHA1\",oauth_signature=\"{PercentEncode(signature)}\",oauth_callback=\"oob\",oauth_version=\"1.0\"";
+        parameters.Add("oauth_signature", signature);
 
+        var authorizationHeader = "OAuth " + string.Join(",", parameters
+             .Select(kvp => $"{PercentEncode(kvp.Key)}=\"{PercentEncode(kvp.Value)}\""));
+    
         // 3. Add the Authorization header to the request
         request.Headers.Add("Authorization", authorizationHeader);
 
@@ -94,7 +130,7 @@ public class OAuthDelegatingHandler : DelegatingHandler
     private static string HMACEncode(string baseString, string secretKey, string tokenSecret = "")
     {
         // Ensure signingKey ends with '&' (as per OAuth spec, only provided consumer_secret&token_secret format works)
-        var finalSecret = secretKey + "&" + tokenSecret;
+        var finalSecret = secretKey + "&" + PercentEncode(tokenSecret);
 
         // Compute the HMAC-SHA1 hash using the signingKey and the baseString
         using (var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(finalSecret)))

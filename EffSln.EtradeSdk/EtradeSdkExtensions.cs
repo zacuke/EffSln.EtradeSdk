@@ -1,11 +1,8 @@
-﻿using EffSln.EtradeSdk.Authorization.RequestToken;
+﻿using EffSln.EtradeSdk.Authorization.GetRequestToken;
+using EffSln.EtradeSdk.Authorization.GetAccessToken;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EffSln.EtradeSdk;
 public static class EtradeSdkExtensions
@@ -23,9 +20,11 @@ public static class EtradeSdkExtensions
         });
 
         // Register the HttpClient and bind it to RequestTokenClient
-        services.AddHttpClient<RequestTokenClient>()
+        services.AddHttpClient<GetRequestTokenClient>()
                 .AddHttpMessageHandler<OAuthDelegatingHandler>();
 
+        services.AddHttpClient<GetAccessTokenClient>()
+                .AddHttpMessageHandler<OAuthDelegatingHandler>();
         return services;
     }
 }

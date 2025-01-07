@@ -1,122 +1,55 @@
-openapi: 3.0.3
+openapi: 3.1.1
 info:
-  title: Authorization API
-  description: Returns an access token used to authorize E*TRADE API calls.
+  title: Returns an access token.
+  description: https://apisb.etrade.com/docs/api/authorization/get_access_token.html
   version: 1.0.0
 servers:
-  - url: https://api.etrade.com/oauth
+  - url: https://api.etrade.com
 
 paths:
-  /access_token:
+  /oauth/access_token:
     get:
       summary: Get Access Token
-      description: |
-        This method returns an access token, which confirms the user has authorized the application to access user data. 
-
-        All E*TRADE API calls (e.g., accountlist, placeequityorder) must include the access token along with 
-        the required headers: consumer key, timestamp, nonce, signature method, and signature.
-
-        The token expires at the end of the current calendar day (US Eastern). If unused for two hours, the 
-        token becomes inactive and must be reactivated or re-requested.
-      tags:
-        - Authentication
+      description: This method returns an access token, which confirms that the user has authorized the application to access user data. All calls to the E*TRADE API (e.g., accountlist, placeequityorder, etc.) must include this access token along with the consumer key, timestamp, nonce, signature method, and signature. This can be done in the query string, but is typically done in the HTTP header. By default, the access token expires at the end of the current calendar day, US Eastern time. Once the token has expired, no requests will be processed for that token until the OAuth process is repeated - i.e., the user must log in again and the application must secure a new access token. During the current day, if the application does not make any requests for two hours, the access token is inactivated. In this inactive state, the access token is not valid for authorizing requests. It must be reactivated using the Renew Access Token API.
+      operationId: getAccessToken
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          description: |
-            OAuth authorization string. Must include `realm`, `oauth_signature`, `oauth_nonce`, `oauth_signature_method`, `oauth_consumer_key`, `oauth_timestamp`, `oauth_verifier`, and `oauth_token`.
-          schema:
-            type: string
-        - name: oauth_consumer_key
-          in: header
-          required: true
-          description: Value used by the consumer to identify itself to the service provider.
-          schema:
-            type: string
-        - name: oauth_timestamp
-          in: header
-          required: true
-          description: Date and time of the request, in epoch time (accurate to within five minutes).
-          schema:
-            type: string
-        - name: oauth_nonce
-          in: header
-          required: true
-          description: Arbitrary random value that cannot be reused with the same timestamp.
-          schema:
-            type: string
-        - name: oauth_signature_method
-          in: header
-          required: true
-          description: Signature method used (only HMAC-SHA1 is supported).
-          schema:
-            type: string
-          example: HMAC-SHA1
-        - name: oauth_signature
-          in: header
-          required: true
-          description: Signature generated with the shared secret and token secret.
-          schema:
-            type: string
         - name: oauth_token
           in: header
           required: true
-          description: Consumer's request token to be exchanged for an access token.
+          description: Oauth_token received from the Get Request Token API.
+          schema:
+            type: string
+        - name: oauth_token_secret
+          in: header
+          required: true
+          description: Oauth_token_secret received from the Get Request Token API.
           schema:
             type: string
         - name: oauth_verifier
           in: header
           required: true
-          description: Verification code received by the user to authenticate with the application.
+          description: The verification code received by the user to authenticate with the third-party application.
           schema:
             type: string
+
       responses:
         '200':
           description: Successful Operation.
           content:
             application/x-www-form-urlencoded:
               schema:
-                type: object
-                properties:
-                  oauth_token:
-                    type: string
-                    description: The consumer’s access token.
-                  oauth_token_secret:
-                    type: string
-                    description: Token secret related to the access token.
-              example:
-                oauth_token: iQRgQCRGPo7Xdk6G8QDSEzX0Jsy6sKNcULcDavAGgU%3D
-                oauth_token_secret: 7RrC9scEpzcwSEMy4vE7nodSzPLqfRINnTNY4voczyFM%3D
+                $ref: "#/components/schemas/OAuthGetAccessTokenResponse"
         '400':
-          description: Invalid input issues.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid request parameters
+          description: There is issue with input
         '500':
-          description: Unexpected server-side error.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: An unexpected error has occurred. The error has been logged and is being investigated.
+          description: An unexpected error has occurred. The error has been logged and is being investigated.
 
 components:
   schemas:
-    AccessTokenResponse:
+    OAuthGetAccessTokenResponse:
       type: object
       properties:
         oauth_token:
           type: string
-          description: The consumer's access token.
         oauth_token_secret:
           type: string
-          description: Token secret related to the access token.
