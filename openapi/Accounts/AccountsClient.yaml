@@ -81,7 +81,7 @@ components:
       description: Details of a single account.
       properties:
         accountId:
-          type: string
+          type: int64
           description: The user's account ID.
         accountIdKey:
           type: string

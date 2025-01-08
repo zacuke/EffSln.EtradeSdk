@@ -250,7 +250,8 @@ namespace EffSln.EtradeSdk.Accounts
         private string ConvertUrlFormToJson(string input)
         {
 
-            if (input.Contains("<?xml version=\"1.0\"")){
+            if (input.Contains("<?xml version=\"1.0\""))
+            {
 
                 var xmlDoc = new System.Xml.XmlDocument();
                 xmlDoc.LoadXml(input);
@@ -279,40 +280,57 @@ namespace EffSln.EtradeSdk.Accounts
         }
         static object ConvertToDictionary(System.Xml.XmlNode node)
         {
-            if (node.ChildNodes.Count == 1 && node.FirstChild is System.Xml.XmlText)
-            {
-                // Base case: node contains a single text node (leaf node)
-                return node.InnerText;
+           if (node.ChildNodes.Count == 1 && node.FirstChild is System.Xml.XmlText)
+           {
+                string textValue = node.InnerText;
+
+                // Handle numeric and boolean conversion
+                if (long.TryParse(textValue, out long numericValue))
+                {
+                    return numericValue; // Return as a number
+                }
+                if (bool.TryParse(textValue, out bool boolValue))
+                {
+                    return boolValue; // Return as a boolean
+                }
+
+                // Return as a string if not empty, return null otherwise
+                return string.IsNullOrWhiteSpace(textValue) ? null : textValue; 
             }
             else
             {
-                // Create a dictionary to store child nodes (or their arrays)
+                // Build dictionary for child nodes
                 var dict = new System.Collections.Generic.Dictionary<string, object>();
 
                 foreach (System.Xml.XmlNode child in node.ChildNodes)
                 {
-                    if (!dict.ContainsKey(child.Name))
-                    {
-                        // Turn each unique child name into a list to support repeating elements.
-                        dict[child.Name] = new System.Collections.Generic.List<object>();
-                    }
+                    var childValue = ConvertToDictionary(child);
 
-                    var list = dict[child.Name] as System.Collections.Generic.List<object>;
-                    list.Add(ConvertToDictionary(child)); // Recursive call
+                    // Exclude this child if it's null or empty
+                    if (childValue != null)
+                    {
+                        if (!dict.ContainsKey(child.Name))
+                        {
+                            dict[child.Name] = new System.Collections.Generic.List<object>();
+                        }
+
+                        var list = dict[child.Name] as System.Collections.Generic.List<object>;
+                        list.Add(childValue);
+                    }
                 }
 
-                // For repeating children (e.g., multiple Accounts nodes) return the list as a value
+                // Simplify single-element lists to just the element
                 foreach (var key in dict.Keys)
                 {
                     var list = dict[key] as System.Collections.Generic.List<object>;
                     if (list.Count == 1)
                     {
-                        // Simplify single-element lists to just the element
                         dict[key] = list[0];
                     }
                 }
 
-                return dict;
+                // Return null if all children were removed (empty node)
+                return dict.Count > 0 ? dict : null;
             }
         }
 
@@ -406,7 +424,7 @@ namespace EffSln.EtradeSdk.Accounts
         /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("accountId")]
-        public string AccountId { get; set; }
+        public object AccountId { get; set; }
 
         /// <summary>
         /// The unique account key.
