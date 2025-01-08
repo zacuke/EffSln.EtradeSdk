@@ -1,21 +1,17 @@
+$sourceDir = "openapi"
+$destDir = "EffSln.EtradeSdk"
 
-$inputDir = "openapi/Authorization"
-$outputDir = "EffSln.EtradeSdk/Authorization"
+$cwd = (Get-Location).Path
 
-# Get all YAML files in the input directory
-Get-ChildItem -Path $inputDir -Filter *.yaml | ForEach-Object {
-    # Extract the filename without extension
-    $fileName = $_.BaseName
+Get-ChildItem -Recurse -Path $cwd -Filter *.yaml | ForEach-Object {
+    $inputFile = $_.FullName.Substring($cwd.Length).TrimStart("\")  
+    $outputFile = $inputFile -replace "^$sourceDir", $destDir
+    $outputFile = [System.IO.Path]::ChangeExtension($outputFile, ".cs")
 
-    # Construct the output file path
-    $outputFile = Join-Path $outputDir ("$fileName.cs")
-
-    $className = "${fileName}"
-    $outputDirClean = $outputDir.replace('/', '.')
-    $namespace = "${outputDirClean}" #".${fileName}"
+    $parts = $outputFile  -split '\\'
+    $namespace = "$($parts[0]).$($parts[1])"
  
-    # Run the NSwag command
-    Write-Host "Processing $($_.FullName) -> $outputFile"
-    #nswag openapi2csclient /GenerateExceptionClasses:false  /input:$($_.FullName) /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$className /GeneratePrepareRequestAndProcessResponseAsAsyncMethods:true  /ClientBaseClass:BaseClient /TemplateDirectory:openapi/templates
-    nswag openapi2csclient   /input:$($_.FullName) /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$className /TemplateDirectory:openapi/templates
+    $fileName = $_.BaseName
+    Write-Host "Processing $inputFile -> $outputFile with namespace $namespace"
+    nswag openapi2csclient   /input:$inputFile /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$fileName /TemplateDirectory:openapi/templates
 }

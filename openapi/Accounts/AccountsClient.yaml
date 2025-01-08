@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: E*TRADE Accounts API
+  description: |
+    The Accounts API provides access to E*TRADE accounts for the current user.
+    Retrieve account details and metadata including account type, mode, and more.
+  version: 1.0.0
+servers:
+  - url: https://api.etrade.com/v1/accounts
+    description: Live API Server
+  - url: https://apisb.etrade.com/v1/accounts
+    description: Sandbox API Server
+paths:
+  /list:
+    get:
+      summary: List Accounts
+      description: Returns a list of E*TRADE accounts for the current user.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/AccountListResponse'
+        '204':
+          description: No records available
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorCode: 105
+                errorMessage: "No accounts were found for the provided user."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                RequestFailure:
+                  summary: Request could not be completed.
+                  value:
+                    errorCode: 100
+                    errorMessage: "Your request could not be completed at this time. Please contact a Financial Services representative at 1-800-ETRADE-1 (1-800-387-2331) or email us at service@etrade.com."
+                Maintenance:
+                  summary: System maintenance message
+                  value:
+                    errorCode: 670
+                    errorMessage: "Currently we are undergoing maintenance, please try again later."
+
+components:
+  schemas:
+    AccountListResponse:
+      type: object
+      description: Response object containing an array of accounts.
+      properties:
+        accounts:
+          type: array
+          description: List of accounts.
+          items:
+            $ref: '#/components/schemas/Account'
+
+    Account:
+      type: object
+      description: Details of a single account.
+      properties:
+        instNo:
+          type: integer
+          description: Institution number of the account.
+        accountId:
+          type: string
+          description: The user's account ID.
+        accountIdKey:
+          type: string
+          description: The unique account key.
+        accountMode:
+          type: string
+          description: The mode of the account.
+          enum:
+            - CASH
+            - MARGIN
+            - CHECKING
+            - IRA
+            - SAVINGS
+            - CD
+        accountDesc:
+          type: string
+          description: Description of the account.
+        accountName:
+          type: string
+          description: The nickname for the account.
+        accountType:
+          type: string
+          description: The account type.
+          enum:
+            - AMMCHK
+            - ARO
+            - BCHK
+            - BENFIRA
+            - BENFROTHIRA
+            - BENF_ESTATE_IRA
+            - BENF_MINOR_IRA
+            - BENF_ROTH_ESTATE_IRA
+            - BENF_ROTH_MINOR_IRA
+            - BENF_ROTH_TRUST_IRA
+            - BENF_TRUST_IRA
+            - BRKCD
+            - BROKER
+            - CASH
+            - C_CORP
+            - CONTRIBUTORY
+            - COVERDELL_ESA
+            - CONVERSION_ROTH_IRA
+            - CREDITCARD
+            - COMM_PROP
+            - CONSERVATOR
+            - CORPORATION
+            - CSA
+            - CUSTODIAL
+            - DVP
+            - ESTATE
+            - EMPCHK
+            - EMPMMCA
+            - ETCHK
+            - ETMMCHK
+            - HEIL
+            - HELOC
+            - INDCHK
+            - INDIVIDUAL
+            - INDIVIDUAL_K
+            - INVCLUB
+            - INVCLUB_C_CORP
+            - INVCLUB_LLC_C_CORP
+            - INVCLUB_LLC_PARTNERSHIP
+            - INVCLUB_LLC_S_CORP
+            - INVCLUB_PARTNERSHIP
+            - INVCLUB_S_CORP
+            - INVCLUB_TRUST
+            - IRA_ROLLOVER
+            - JOINT
+            - JTTEN
+            - JTWROS
+            - LLC_C_CORP
+            - LLC_PARTNERSHIP
+            - LLC_S_CORP
+            - LLP
+            - LLP_C_CORP
+            - LLP_S_CORP
+            - IRA
+            - IRACD
+            - MONEY_PURCHASE
+            - MARGIN
+            - MRCHK
+            - MUTUAL_FUND
+            - NONCUSTODIAL
+            - NON_PROFIT
+            - OTHER
+            - PARTNER
+            - PARTNERSHIP
+            - PARTNERSHIP_C_CORP
+            - PARTNERSHIP_S_CORP
+            - PDT_ACCOUNT
+            - PM_ACCOUNT
+            - PREFCD
+            - PREFIRACD
+            - PROFIT_SHARING
+            - PROPRIETARY
+            - REGCD
+            - ROTHIRA
+            - ROTH_INDIVIDUAL_K
+            - ROTH_IRA_MINORS
+            - SARSEPIRA
+            - S_CORP
+            - SEPIRA
+            - SIMPLE_IRA
+            - TIC
+            - TRD_IRA_MINORS
+            - TRUST
+            - VARCD
+            - VARIRACD
+        institutionType:
+          type: string
+          description: The institution type of the account.
+          enum:
+            - BROKERAGE
+        accountStatus:
+          type: string
+          description: The status of the account.
+          enum:
+            - ACTIVE
+            - CLOSED
+        closedDate:
+          type: integer
+          format: int64
+          description: The date when the account was closed.
+        shareWorksAccount:
+          type: boolean
+          description: Indicates if it is a Shareworks Account.
+        shareWorksSource:
+          type: string
+          description: The source of the Shareworks account.
+        fcManagedMssbClosedAccount:
+          type: boolean
+          description: Indicates if the account is a managed MSSB closed account.
