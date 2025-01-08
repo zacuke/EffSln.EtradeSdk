@@ -13,6 +13,7 @@ public class EtradeSdkOptions
     /// Defaults to oob
     /// </summary>
     public string Oauth_callback { get; set; } = "oob";
+    public bool UseSandbox { get; set; } = true;
     public void Validate()
     {
         if (string.IsNullOrEmpty(Key) || string.IsNullOrEmpty(Secret) || string.IsNullOrEmpty(Oauth_callback))

@@ -347,18 +347,73 @@ namespace EffSln.EtradeSdk.Authorization
             }
         }
 
-        private string ConvertUrlFormToJson(string input){
-            // Parse the response into a collection using HttpUtility
-            var queryParams = System.Web.HttpUtility.ParseQueryString(input);
+        private string ConvertUrlFormToJson(string input)
+        {
 
-            // Create a dictionary to hold the parsed values
-            var dictionary = new System.Collections.Generic.Dictionary<string, string>();
-            foreach (string key in queryParams.Keys)
-            {
-                dictionary[key] = queryParams[key];
+            if (input.Contains("<?xml version=\"1.0\"")){
+
+                var xmlDoc = new System.Xml.XmlDocument();
+                xmlDoc.LoadXml(input);
+
+                var jsonCompatible = ConvertToDictionary(xmlDoc.DocumentElement);
+
+                // Serialize Dictionary to JSON
+                string json = System.Text.Json.JsonSerializer.Serialize(jsonCompatible, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                return json;
+                 
             }
+            else
+            {
+                // Parse the response into a collection using HttpUtility
+                var queryParams = System.Web.HttpUtility.ParseQueryString(input);
 
-            return System.Text.Json.JsonSerializer.Serialize(dictionary);
+                // Create a dictionary to hold the parsed values
+                var dictionary = new System.Collections.Generic.Dictionary<string, string>();
+                foreach (string key in queryParams.Keys)
+                {
+                    dictionary[key] = queryParams[key];
+                } 
+                return System.Text.Json.JsonSerializer.Serialize(dictionary);
+            }
+           
+        }
+        static object ConvertToDictionary(System.Xml.XmlNode node)
+        {
+            if (node.ChildNodes.Count == 1 && node.FirstChild is System.Xml.XmlText)
+            {
+                // Base case: node contains a single text node (leaf node)
+                return node.InnerText;
+            }
+            else
+            {
+                // Create a dictionary to store child nodes (or their arrays)
+                var dict = new System.Collections.Generic.Dictionary<string, object>();
+
+                foreach (System.Xml.XmlNode child in node.ChildNodes)
+                {
+                    if (!dict.ContainsKey(child.Name))
+                    {
+                        // Turn each unique child name into a list to support repeating elements.
+                        dict[child.Name] = new System.Collections.Generic.List<object>();
+                    }
+
+                    var list = dict[child.Name] as System.Collections.Generic.List<object>;
+                    list.Add(ConvertToDictionary(child)); // Recursive call
+                }
+
+                // For repeating children (e.g., multiple Accounts nodes) return the list as a value
+                foreach (var key in dict.Keys)
+                {
+                    var list = dict[key] as System.Collections.Generic.List<object>;
+                    if (list.Count == 1)
+                    {
+                        // Simplify single-element lists to just the element
+                        dict[key] = list[0];
+                    }
+                }
+
+                return dict;
+            }
         }
 
         private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)

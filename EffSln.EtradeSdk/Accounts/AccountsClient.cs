@@ -37,7 +37,7 @@ namespace EffSln.EtradeSdk.Accounts
         public AccountsClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://api.etrade.com/v1/accounts";
+            BaseUrl = "https://apisb.etrade.com/v1/accounts";
             _httpClient = httpClient;
             Initialize();
         }
@@ -76,11 +76,13 @@ namespace EffSln.EtradeSdk.Accounts
         /// <remarks>
         /// Returns a list of E*TRADE accounts for the current user.
         /// </remarks>
+        /// <param name="oauth_token">Oauth_token received from the Get Access Token API.</param>
+        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Access Token API.</param>
         /// <returns>Successful operation</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccountListResponse> ListAsync()
+        public virtual System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(string oauth_token, string oauth_token_secret)
         {
-            return ListAsync(System.Threading.CancellationToken.None);
+            return ListAccountsAsync(oauth_token, oauth_token_secret, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -90,9 +92,11 @@ namespace EffSln.EtradeSdk.Accounts
         /// <remarks>
         /// Returns a list of E*TRADE accounts for the current user.
         /// </remarks>
+        /// <param name="oauth_token">Oauth_token received from the Get Access Token API.</param>
+        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Access Token API.</param>
         /// <returns>Successful operation</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccountListResponse> ListAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(string oauth_token, string oauth_token_secret, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -100,6 +104,14 @@ namespace EffSln.EtradeSdk.Accounts
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (oauth_token == null)
+                        throw new System.ArgumentNullException("oauth_token");
+                    request_.Headers.TryAddWithoutValidation("oauth_token", ConvertToString(oauth_token, System.Globalization.CultureInfo.InvariantCulture));
+
+                    if (oauth_token_secret == null)
+                        throw new System.ArgumentNullException("oauth_token_secret");
+                    request_.Headers.TryAddWithoutValidation("oauth_token_secret", ConvertToString(oauth_token_secret, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/xml"));
 
@@ -235,18 +247,73 @@ namespace EffSln.EtradeSdk.Accounts
             }
         }
 
-        private string ConvertUrlFormToJson(string input){
-            // Parse the response into a collection using HttpUtility
-            var queryParams = System.Web.HttpUtility.ParseQueryString(input);
+        private string ConvertUrlFormToJson(string input)
+        {
 
-            // Create a dictionary to hold the parsed values
-            var dictionary = new System.Collections.Generic.Dictionary<string, string>();
-            foreach (string key in queryParams.Keys)
-            {
-                dictionary[key] = queryParams[key];
+            if (input.Contains("<?xml version=\"1.0\"")){
+
+                var xmlDoc = new System.Xml.XmlDocument();
+                xmlDoc.LoadXml(input);
+
+                var jsonCompatible = ConvertToDictionary(xmlDoc.DocumentElement);
+
+                // Serialize Dictionary to JSON
+                string json = System.Text.Json.JsonSerializer.Serialize(jsonCompatible, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                return json;
+                 
             }
+            else
+            {
+                // Parse the response into a collection using HttpUtility
+                var queryParams = System.Web.HttpUtility.ParseQueryString(input);
 
-            return System.Text.Json.JsonSerializer.Serialize(dictionary);
+                // Create a dictionary to hold the parsed values
+                var dictionary = new System.Collections.Generic.Dictionary<string, string>();
+                foreach (string key in queryParams.Keys)
+                {
+                    dictionary[key] = queryParams[key];
+                } 
+                return System.Text.Json.JsonSerializer.Serialize(dictionary);
+            }
+           
+        }
+        static object ConvertToDictionary(System.Xml.XmlNode node)
+        {
+            if (node.ChildNodes.Count == 1 && node.FirstChild is System.Xml.XmlText)
+            {
+                // Base case: node contains a single text node (leaf node)
+                return node.InnerText;
+            }
+            else
+            {
+                // Create a dictionary to store child nodes (or their arrays)
+                var dict = new System.Collections.Generic.Dictionary<string, object>();
+
+                foreach (System.Xml.XmlNode child in node.ChildNodes)
+                {
+                    if (!dict.ContainsKey(child.Name))
+                    {
+                        // Turn each unique child name into a list to support repeating elements.
+                        dict[child.Name] = new System.Collections.Generic.List<object>();
+                    }
+
+                    var list = dict[child.Name] as System.Collections.Generic.List<object>;
+                    list.Add(ConvertToDictionary(child)); // Recursive call
+                }
+
+                // For repeating children (e.g., multiple Accounts nodes) return the list as a value
+                foreach (var key in dict.Keys)
+                {
+                    var list = dict[key] as System.Collections.Generic.List<object>;
+                    if (list.Count == 1)
+                    {
+                        // Simplify single-element lists to just the element
+                        dict[key] = list[0];
+                    }
+                }
+
+                return dict;
+            }
         }
 
         private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)
@@ -311,11 +378,11 @@ namespace EffSln.EtradeSdk.Accounts
     public partial class AccountListResponse
     {
         /// <summary>
-        /// List of accounts.
+        /// Contains the list of accounts.
         /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("accounts")]
-        public System.Collections.Generic.ICollection<Account> Accounts { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("Accounts")]
+        public Accounts Accounts { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -334,13 +401,6 @@ namespace EffSln.EtradeSdk.Accounts
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Account
     {
-        /// <summary>
-        /// Institution number of the account.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("instNo")]
-        public int InstNo { get; set; }
-
         /// <summary>
         /// The user's account ID.
         /// </summary>
@@ -371,7 +431,7 @@ namespace EffSln.EtradeSdk.Accounts
         public string AccountDesc { get; set; }
 
         /// <summary>
-        /// The nickname for the account.
+        /// The nickname for the account. Can be empty.
         /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("accountName")]
@@ -428,6 +488,27 @@ namespace EffSln.EtradeSdk.Accounts
 
         [System.Text.Json.Serialization.JsonPropertyName("fcManagedMssbClosedAccount")]
         public bool FcManagedMssbClosedAccount { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Accounts
+    {
+        /// <summary>
+        /// List of accounts.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("Account")]
+        public System.Collections.Generic.ICollection<Account> Account { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

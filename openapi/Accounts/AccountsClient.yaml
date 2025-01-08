@@ -6,8 +6,6 @@ info:
     Retrieve account details and metadata including account type, mode, and more.
   version: 1.0.0
 servers:
-  - url: https://api.etrade.com/v1/accounts
-    description: Live API Server
   - url: https://apisb.etrade.com/v1/accounts
     description: Sandbox API Server
 paths:
@@ -15,6 +13,20 @@ paths:
     get:
       summary: List Accounts
       description: Returns a list of E*TRADE accounts for the current user.
+      operationId: listAccounts
+      parameters:
+        - name: oauth_token
+          in: header
+          required: true
+          description: Oauth_token received from the Get Access Token API.
+          schema:
+            type: string
+        - name: oauth_token_secret
+          in: header
+          required: true
+          description: Oauth_token_secret received from the Get Access Token API.
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -55,19 +67,19 @@ components:
       type: object
       description: Response object containing an array of accounts.
       properties:
-        accounts:
-          type: array
-          description: List of accounts.
-          items:
-            $ref: '#/components/schemas/Account'
-
+        Accounts: # Matches the JSON exactly (case-sensitive)
+          type: object
+          description: Contains the list of accounts.
+          properties:
+            Account:
+              type: array
+              description: List of accounts.
+              items:
+                $ref: '#/components/schemas/Account'
     Account:
       type: object
       description: Details of a single account.
       properties:
-        instNo:
-          type: integer
-          description: Institution number of the account.
         accountId:
           type: string
           description: The user's account ID.
@@ -89,7 +101,8 @@ components:
           description: Description of the account.
         accountName:
           type: string
-          description: The nickname for the account.
+          description: The nickname for the account. Can be empty.
+          nullable: true # This explicitly states it can be null in the client
         accountType:
           type: string
           description: The account type.

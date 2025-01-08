@@ -13,5 +13,5 @@ Get-ChildItem -Recurse -Path $cwd -Filter *.yaml | ForEach-Object {
  
     $fileName = $_.BaseName
     Write-Host "Processing $inputFile -> $outputFile with namespace $namespace"
-    nswag openapi2csclient   /input:$inputFile /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$fileName /TemplateDirectory:openapi/templates
+    nswag openapi2csclient /input:$inputFile /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$fileName /TemplateDirectory:openapi/templates
 }

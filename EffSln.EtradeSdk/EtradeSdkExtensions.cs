@@ -1,4 +1,5 @@
 ﻿
+using EffSln.EtradeSdk.Accounts;
 using EffSln.EtradeSdk.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -27,7 +28,10 @@ public static class EtradeSdkExtensions
         services.AddHttpClient<AuthorizationClient>()
                 .AddHttpMessageHandler<OAuthDelegatingHandler>();
 
-   
+        // Register the HttpClient and bind it to RequestTokenClient
+        services.AddHttpClient<AccountsClient>()
+                .AddHttpMessageHandler<OAuthDelegatingHandler>();
+
 
         // Assign the service provider for use in static methods
         var serviceProvider = services.BuildServiceProvider();
