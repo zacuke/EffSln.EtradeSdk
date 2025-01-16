@@ -14,6 +14,15 @@ public class EtradeSdkOptions
     /// </summary>
     public string Oauth_callback { get; set; } = "oob";
     public bool UseSandbox { get; set; } = true;
+
+    /// <summary>
+    /// Set this manually after calling etrade auth methods
+    /// </summary>
+    public string AccessOauth_token { get; set; }
+    /// <summary>
+    /// Set this manually after calling etrade auth methods
+    /// </summary>
+    public string AccessOauth_token_secret { get; set; }
     public void Validate()
     {
         if (string.IsNullOrEmpty(Key) || string.IsNullOrEmpty(Secret) || string.IsNullOrEmpty(Oauth_callback))

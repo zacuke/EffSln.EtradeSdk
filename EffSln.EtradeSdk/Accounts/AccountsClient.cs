@@ -76,13 +76,11 @@ namespace EffSln.EtradeSdk.Accounts
         /// <remarks>
         /// Returns a list of E*TRADE accounts for the current user.
         /// </remarks>
-        /// <param name="oauth_token">Oauth_token received from the Get Access Token API.</param>
-        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Access Token API.</param>
         /// <returns>Successful operation</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(string oauth_token, string oauth_token_secret)
+        public virtual System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync()
         {
-            return ListAccountsAsync(oauth_token, oauth_token_secret, System.Threading.CancellationToken.None);
+            return ListAccountsAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -92,11 +90,9 @@ namespace EffSln.EtradeSdk.Accounts
         /// <remarks>
         /// Returns a list of E*TRADE accounts for the current user.
         /// </remarks>
-        /// <param name="oauth_token">Oauth_token received from the Get Access Token API.</param>
-        /// <param name="oauth_token_secret">Oauth_token_secret received from the Get Access Token API.</param>
         /// <returns>Successful operation</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(string oauth_token, string oauth_token_secret, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -104,14 +100,6 @@ namespace EffSln.EtradeSdk.Accounts
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (oauth_token == null)
-                        throw new System.ArgumentNullException("oauth_token");
-                    request_.Headers.TryAddWithoutValidation("oauth_token", ConvertToString(oauth_token, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (oauth_token_secret == null)
-                        throw new System.ArgumentNullException("oauth_token_secret");
-                    request_.Headers.TryAddWithoutValidation("oauth_token_secret", ConvertToString(oauth_token_secret, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/xml"));
 

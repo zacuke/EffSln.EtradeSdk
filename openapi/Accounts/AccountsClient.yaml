@@ -14,19 +14,6 @@ paths:
       summary: List Accounts
       description: Returns a list of E*TRADE accounts for the current user.
       operationId: listAccounts
-      parameters:
-        - name: oauth_token
-          in: header
-          required: true
-          description: Oauth_token received from the Get Access Token API.
-          schema:
-            type: string
-        - name: oauth_token_secret
-          in: header
-          required: true
-          description: Oauth_token_secret received from the Get Access Token API.
-          schema:
-            type: string
       responses:
         '200':
           description: Successful operation

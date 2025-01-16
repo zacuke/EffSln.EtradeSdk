@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,15 +10,12 @@ using System.Threading.Tasks;
 namespace EffSln.EtradeSdk;
 public class OAuthDelegatingHandler : DelegatingHandler
 {
-    private readonly string _key;
-    private readonly string _secret;
-    private readonly string _oauth_callback;
+
+    private readonly EtradeSdkOptions _etradeSdkOptions;
     public OAuthDelegatingHandler(EtradeSdkOptions options)
     {
         options.Validate();
-        _key = options.Key;
-        _secret = options.Secret;
-        _oauth_callback = options.Oauth_callback;
+        _etradeSdkOptions = options; 
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -26,6 +24,22 @@ public class OAuthDelegatingHandler : DelegatingHandler
         var oauth_token_secret = string.Empty;
         var oauth_verifier = string.Empty;
 
+        var _key = _etradeSdkOptions.Key;
+        var _secret = _etradeSdkOptions.Secret;
+        var _oauth_callback = _etradeSdkOptions.Oauth_callback;
+
+
+        //adding this to prevent forcing user to pass the access tokens every time
+        if (!string.IsNullOrEmpty(_etradeSdkOptions.AccessOauth_token))
+        {
+            oauth_token = _etradeSdkOptions.AccessOauth_token;
+        }
+        if (!string.IsNullOrEmpty(_etradeSdkOptions.AccessOauth_token_secret))
+        {
+            oauth_token_secret = _etradeSdkOptions.AccessOauth_token_secret;
+        }
+
+        //do this second so user can still manually call the auth methods
         //bit of a hack because nswag
         if (request.Headers.Contains("oauth_token"))
         {
