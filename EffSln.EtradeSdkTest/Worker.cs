@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace EffSln.EtradeSdkTest;
 
-public class Worker : IHostedService
+public class Worker : MenuConsoleApp
 {
     private readonly EtradeSdkOptions _etradeSdkOptions;
     private readonly AuthorizationClient _authorizationClient;
@@ -21,8 +21,8 @@ public class Worker : IHostedService
         _etradeSdkOptions = etradeSdkOptions.Value;
     }
 
- 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    private AccountListResponse _accountListResponse;
+    public async override Task StartAsync(CancellationToken cancellationToken)
     {        
  
         //first get access token
@@ -35,9 +35,50 @@ public class Worker : IHostedService
         _etradeSdkOptions.AccessOauth_token_secret = accessTokenResponse.Oauth_token_secret;
 
         //now we can start calling the normal API methods
-        var accounts = await _accountsClient.ListAccountsAsync(cancellationToken);
-    }
+        _accountListResponse = await _accountsClient.ListAccountsAsync(cancellationToken);
 
+        MainMenu();
+    }
+    void MainMenu()
+    {
+
+        var mainMenuOptions = BuildMenuOptions(
+            _accountListResponse.Accounts.Account,
+            account => account.AccountName.ToString() + $" ({account.AccountIdKey})",
+            account => () => AccountMenu(account.AccountIdKey)
+        );
+
+        // Add a common "Exit" option
+        mainMenuOptions.Add(0, ("Exit", () => Console.WriteLine("Exiting program...")));
+
+
+
+        HandleMenu(mainMenuOptions, "Main Menu: List of Accounts");
+    }
+    void AccountMenu(string AccountIdKey)
+    {
+        // Define the account-specific menu as a dictionary
+        var accountMenuOptions = new Dictionary<int, (string, Action)>
+            {
+                { 1, ("Get Account Balances", () => GetAccountBalances(AccountIdKey))},
+                { 2, ("List Transactions", () => ListTransactions(AccountIdKey)) },
+                { 3, ("View Portfolio", () => ViewPortfolio(AccountIdKey)) },
+                { 0, ("Back to Main Menu", MainMenu) }
+            };
+
+        HandleMenu(accountMenuOptions, $"Menu for {AccountIdKey}");
+    }
+    void GetAccountBalances(string accountIdKey)
+    {
+    }
+    void ListTransactions(string accountIdKey)
+    {
+
+    }
+    void ViewPortfolio(string accountIdKey)
+    {
+
+    }
     /// <summary>
     /// Example method to open browser where user logs into etrade and gets a token. Etrade has an optional Callback URL that can be implemented instead to avoid copy pasting the token, but it still requires user interaction to sign into Etrade and click Agree.
     /// </summary>
@@ -46,7 +87,7 @@ public class Worker : IHostedService
     /// <param name="oauth_token_secret"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<OAuthGetAccessTokenResponse> GetTokenFromUser(string authUrl,string oauth_token, string oauth_token_secret, CancellationToken cancellationToken)
+    async Task<OAuthGetAccessTokenResponse> GetTokenFromUser(string authUrl,string oauth_token, string oauth_token_secret, CancellationToken cancellationToken)
     {
         //etrade requires user interaction once a day
         var launchBrowser = new ProcessStartInfo(authUrl) { UseShellExecute = true };
@@ -58,8 +99,5 @@ public class Worker : IHostedService
         return accessTokenResponse;
 
     }
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
+
 }

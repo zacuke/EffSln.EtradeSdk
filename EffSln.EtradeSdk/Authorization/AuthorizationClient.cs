@@ -385,10 +385,10 @@ namespace EffSln.EtradeSdk.Authorization
                 string textValue = node.InnerText;
 
                 // Handle numeric and boolean conversion
-                if (long.TryParse(textValue, out long numericValue))
-                {
-                    return numericValue; // Return as a number
-                }
+                //if (long.TryParse(textValue, out long numericValue))
+                //{
+                //    return numericValue; // Return as a number
+                //}
                 if (bool.TryParse(textValue, out bool boolValue))
                 {
                     return boolValue; // Return as a boolean
@@ -499,15 +499,6 @@ namespace EffSln.EtradeSdk.Authorization
         [System.Text.Json.Serialization.JsonPropertyName("oauth_token_secret")]
         public string Oauth_token_secret { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -522,15 +513,6 @@ namespace EffSln.EtradeSdk.Authorization
 
         [System.Text.Json.Serialization.JsonPropertyName("oauth_callback_confirmed")]
         public string Oauth_callback_confirmed { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
 
     }
 

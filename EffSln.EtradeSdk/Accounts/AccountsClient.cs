@@ -273,10 +273,10 @@ namespace EffSln.EtradeSdk.Accounts
                 string textValue = node.InnerText;
 
                 // Handle numeric and boolean conversion
-                if (long.TryParse(textValue, out long numericValue))
-                {
-                    return numericValue; // Return as a number
-                }
+                //if (long.TryParse(textValue, out long numericValue))
+                //{
+                //    return numericValue; // Return as a number
+                //}
                 if (bool.TryParse(textValue, out bool boolValue))
                 {
                     return boolValue; // Return as a boolean
@@ -390,15 +390,6 @@ namespace EffSln.EtradeSdk.Accounts
         [System.Text.Json.Serialization.JsonPropertyName("Accounts")]
         public Accounts Accounts { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
     }
 
     /// <summary>
@@ -412,7 +403,7 @@ namespace EffSln.EtradeSdk.Accounts
         /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("accountId")]
-        public object AccountId { get; set; }
+        public long AccountId { get; set; }
 
         /// <summary>
         /// The unique account key.
@@ -494,15 +485,6 @@ namespace EffSln.EtradeSdk.Accounts
 
         [System.Text.Json.Serialization.JsonPropertyName("fcManagedMssbClosedAccount")]
         public bool FcManagedMssbClosedAccount { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
 
     }
 

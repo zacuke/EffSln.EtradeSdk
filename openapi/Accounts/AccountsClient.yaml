@@ -21,6 +21,7 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/AccountListResponse'
+
         '204':
           description: No records available
           content:
@@ -53,8 +54,9 @@ components:
     AccountListResponse:
       type: object
       description: Response object containing an array of accounts.
+      additionalProperties: false
       properties:
-        Accounts: # Matches the JSON exactly (case-sensitive)
+        Accounts:
           type: object
           description: Contains the list of accounts.
           properties:
@@ -66,9 +68,11 @@ components:
     Account:
       type: object
       description: Details of a single account.
+      additionalProperties: false
       properties:
         accountId:
-          type: int64
+          type: integer
+          format: int64
           description: The user's account ID.
         accountIdKey:
           type: string

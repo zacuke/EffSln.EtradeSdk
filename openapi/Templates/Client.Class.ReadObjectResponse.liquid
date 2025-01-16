@@ -99,10 +99,10 @@ static object ConvertToDictionary(System.Xml.XmlNode node)
         string textValue = node.InnerText;
 
         // Handle numeric and boolean conversion
-        if (long.TryParse(textValue, out long numericValue))
-        {
-            return numericValue; // Return as a number
-        }
+        //if (long.TryParse(textValue, out long numericValue))
+        //{
+        //    return numericValue; // Return as a number
+        //}
         if (bool.TryParse(textValue, out bool boolValue))
         {
             return boolValue; // Return as a boolean

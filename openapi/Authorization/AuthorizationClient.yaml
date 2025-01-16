@@ -48,6 +48,7 @@ paths:
       summary: Get Request Token
       description: This API returns a temporary request token that begins the OAuth process. The request token must accompany the user to the authorization page, where the user will grant your application limited access to the account. The token expires after five minutes.
       operationId: getRequestToken
+      additionalProperties: false
       responses:
         '200':
           description: Successful Operation.
@@ -64,6 +65,7 @@ components:
   schemas:
     OAuthGetAccessTokenResponse:
       type: object
+      additionalProperties: false
       properties:
         oauth_token:
           type: string
@@ -71,6 +73,7 @@ components:
           type: string
     OAuthGetRequestTokenResponse:
       type: object
+      additionalProperties: false
       properties:
         oauth_token:
           type: string
