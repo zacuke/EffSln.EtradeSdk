@@ -1,0 +1,273 @@
+openapi: 3.1.1
+info:
+  title: Accounts API
+  description: |
+    This API retrieves the current account balance and related details for a specified account.
+    It provides detailed balance information for a specified account of the current user, including account type, option level, and details on up to four balances - account balance, margin account balance, day trade balance, and cash account balance.
+  version: "1.0.0"
+servers:
+  - url: https://apisb.etrade.com/v1/accounts
+    description: Sandbox server
+paths:
+  /{accountIdKey}/balance:
+    get:
+      summary: Get Account Balances
+      description: Retrieve detailed balance information for a specified account for the current user.
+      operationId: getAccountBalances
+      parameters:
+        - name: accountIdKey
+          in: path
+          required: true
+          description: The unique account key. Retrievable by calling the List Accounts API.
+          schema:
+            type: string
+        - name: instType
+          in: query
+          required: true
+          description: The account institution type for which the balance information is requested.
+          schema:
+            type: string
+            enum: [BROKERAGE]
+        - name: accountType
+          in: query
+          required: false
+          description: The registered account type.
+          schema:
+            type: string
+            enum: [AMMCHK, ARO, BCHK, BENFIRA, BENFROTHIRA, BENF_ESTATE_IRA, BENF_MINOR_IRA, BENF_ROTH_ESTATE_IRA, BENF_ROTH_MINOR_IRA, BENF_ROTH_TRUST_IRA, BENF_TRUST_IRA, BRKCD, BROKER, CASH, C_CORP, CONTRIBUTORY, COVERDELL_ESA, CONVERSION_ROTH_IRA, CREDITCARD, COMM_PROP, CONSERVATOR, CORPORATION, CSA, CUSTODIAL, DVP, ESTATE, EMPCHK, EMPMMCA, ETCHK, ETMMCHK, HEIL, HELOC, INDCHK, INDIVIDUAL, INDIVIDUAL_K, INVCLUB, INVCLUB_C_CORP, INVCLUB_LLC_C_CORP, INVCLUB_LLC_PARTNERSHIP, INVCLUB_LLC_S_CORP, INVCLUB_PARTNERSHIP, INVCLUB_S_CORP, INVCLUB_TRUST, IRA_ROLLOVER, JOINT, JTTEN, JTWROS, LLC_C_CORP, LLC_PARTNERSHIP, LLC_S_CORP, LLP, LLP_C_CORP, LLP_S_CORP, IRA, IRACD, MONEY_PURCHASE, MARGIN, MRCHK, MUTUAL_FUND, NONCUSTODIAL, NON_PROFIT, OTHER, PARTNER, PARTNERSHIP, PARTNERSHIP_C_CORP, PARTNERSHIP_S_CORP, PDT_ACCOUNT, PM_ACCOUNT, PREFCD, PREFIRACD, PROFIT_SHARING, PROPRIETARY, REGCD, ROTHIRA, ROTH_INDIVIDUAL_K, ROTH_IRA_MINORS, SARSEPIRA, S_CORP, SEPIRA, SIMPLE_IRA, TIC, TRD_IRA_MINORS, TRUST, VARCD, VARIRACD]
+        - name: realTimeNAV
+          in: query
+          required: false
+          description: |
+            If true, fetches the real-time balance. Default is false.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponseWrapper'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                accessError:
+                  summary: User does not have access on this account
+                  value:
+                    errorCode: 253
+                    message: User does not have access on this account.
+                accountError:
+                  summary: Account key does not belong to user
+                  value:
+                    errorCode: 100
+                    message: Account key does not belong to user.
+                institutionTypeError:
+                  summary: Invalid institution type
+                  value:
+                    errorCode: 7002
+                    message: Invalid institution type.
+                invalidAccountError:
+                  summary: Invalid account
+                  value:
+                    errorCode: 7001
+                    message: Invalid account.
+                invalidKeyError:
+                  summary: Please enter valid account key
+                  value:
+                    errorCode: 102
+                    message: Please enter valid account key.
+components:
+  schemas:
+    BalanceResponseWrapper:
+      type: object
+      additionalProperties: false
+      properties:                 # Define the parent object
+        BalanceResponse:          # Reflect the nested "BalanceResponse" in JSON
+          $ref: '#/components/schemas/BalanceResponse'
+          
+    BalanceResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        accountId:
+          type: string
+          description: The account ID for which the balance is requested.
+        institutionType:
+          type: string
+          description: The account institution type.
+          enum: [BROKERAGE, GLOBALTRADING, NONUS, STOCKPLAN, LENDING, HELOC]
+        accountType:
+          type: string
+          description: The registered account type.
+          enum: [AMMCHK, ARO, BCHK, BENFIRA, BENFROTHIRA, BENF_ESTATE_IRA, BENF_MINOR_IRA, BENF_ROTH_ESTATE_IRA, BENF_ROTH_MINOR_IRA, BENF_ROTH_TRUST_IRA, BENF_TRUST_IRA, BRKCD, BROKER, CASH, C_CORP, CONTRIBUTORY, COVERDELL_ESA, CONVERSION_ROTH_IRA, CREDITCARD, COMM_PROP, CONSERVATOR, CORPORATION, CSA, CUSTODIAL, DVP, ESTATE, EMPCHK, EMPMMCA, ETCHK, ETMMCHK, HEIL, HELOC, INDCHK, INDIVIDUAL, INDIVIDUAL_K, INVCLUB, INVCLUB_C_CORP, INVCLUB_LLC_C_CORP, INVCLUB_LLC_PARTNERSHIP, INVCLUB_LLC_S_CORP, INVCLUB_PARTNERSHIP, INVCLUB_S_CORP, INVCLUB_TRUST, IRA_ROLLOVER, JOINT, JTTEN, JTWROS, LLC_C_CORP, LLC_PARTNERSHIP, LLC_S_CORP, LLP, LLP_C_CORP, LLP_S_CORP, IRA, IRACD, MONEY_PURCHASE, MARGIN, MRCHK, MUTUAL_FUND, NONCUSTODIAL, NON_PROFIT, OTHER, PARTNER, PARTNERSHIP, PARTNERSHIP_C_CORP, PARTNERSHIP_S_CORP, PDT_ACCOUNT, PM_ACCOUNT, PREFCD, PREFIRACD, PROFIT_SHARING, PROPRIETARY, REGCD, ROTHIRA, ROTH_INDIVIDUAL_K, ROTH_IRA_MINORS, SARSEPIRA, S_CORP, SEPIRA, SIMPLE_IRA, TIC, TRD_IRA_MINORS, TRUST, VARCD, VARIRACD]
+        optionLevel:
+          type: string
+          description: The option approval level of the account.
+          enum: [NO_OPTIONS, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4]
+        accountDescription:
+          type: string
+          description: The description of the account.
+        Cash:
+          $ref: '#/components/schemas/Cash'
+        Computed:
+          $ref: '#/components/schemas/ComputedBalance'
+    Cash:
+      type: object
+      additionalProperties: false
+      properties:
+        fundsForOpenOrdersCash:
+          type: number
+          description: The funds reserved for open orders.
+        moneyMktBalance:
+          type: number
+          description: The current cash balance of the money market or sweep deposit account.
+    ComputedBalance:
+      type: object
+      additionalProperties: false
+      properties:
+        cashAvailableForInvestment:
+          type: number
+          description: The cash available for investments
+        cashAvailableForWithdrawal:
+          type: number
+          description: The cash available for withdrawal
+        netCash:
+          type: number
+          description: The net cash balance
+        cashBalance:
+          type: number
+          description: The current cash balance
+        settledCashForInvestment:
+          type: number 	
+          description: The settled cash for investments
+        unSettledCashForInvestment:
+          type: number 	
+          description: The unsettled cash for investments
+        fundsWithheldFromPurchasePower:
+          type: number
+          description: The funds withheld from the purchasing power 	
+        fundsWithheldFromWithdrawal:
+          type: number 	
+          description: The funds withheld from withdrawal 	
+        marginBuyingPower:
+          type:  	number	
+          description: The margin account buying power 	
+        cashBuyingPower:
+          type: number	
+          description: The cash account buying power 	
+        dtMarginBuyingPower:
+          type: number	
+          description: The day trader margin account buying power 	
+        dtCashBuyingPower:
+          type: number	
+          description: The day trader cash account buying power 	
+        marginBalance:
+          type: number	
+          description: The margin account balance 	
+        shortAdjustBalance:
+          type: number	
+          description: The short adjusted balance 	
+        regtEquity:
+          type: number	
+          description: The Regulation T equity 	
+        regtEquityPercent:
+          type: number	
+          description: The Regulation T equity percentage 	
+        accountBalance:
+          type: number	
+          description: The current account balance 	
+        OpenCalls:
+          $ref: '#/components/schemas/OpenCalls'
+        RealTimeValues:
+          $ref: '#/components/schemas/RealTimeValues' 	
+        portfolioMargin:
+          $ref: '#/components/schemas/PortfolioMargin'
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          description: The error code.
+        message:
+          type: string
+          description: The error message.
+    OpenCalls:
+      type: object
+      additionalProperties: false
+      description: Open calls related to the account.
+      properties:
+        minEquityCall:
+          type: number
+          description: The minimum equity call.
+        fedCall:
+          type: number
+          description: The federal call.
+        cashCall:
+          type: number
+          description: The cash call.
+        houseCall:
+          type: number
+          description: The house call.
+    RealTimeValues:
+      type: object
+      additionalProperties: false
+      description: Real-time values related to the account.
+      properties:
+        totalAccountValue:
+          type: number
+          description: The total account value.
+        netMv:
+          type: number
+          description: The net market value.
+        netMvLong:
+          type: number
+          description: The long net market value.
+        netMvShort:
+          type: number
+          description: The short net market value.
+        totalLongValue:
+          type: number
+          description: The total long value.
+    PortfolioMargin:
+      type: object
+      additionalProperties: false
+      description: Portfolio margin-related details of the account.
+      properties:
+        dtCashOpenOrderReserve:
+            type: number
+            description: The margin account cash open order reserve.
+        dtMarginOpenOrderReserve:
+            type: number
+            description: The margin account margin open order reserve.
+        liquidatingEquity:
+            type: number
+            description: The liquidating equity.
+        houseExcessEquity:
+            type: number
+            description: The house excess equity.
+        totalHouseRequirement:
+            type: number
+            description: The total house requirement.
+        excessEquityMinusRequirement:
+            type: number
+            description: The excess equity minus the portfolio requirement.
+        totalMarginRqmts:
+            type: number
+            description: The total margin requirements.
+        availExcessEquity:
+            type: number
+            description: The available excess equity.
+        excessEquity:
+            type: number
+            description: The excess equity.
+        openOrderReserve:
+            type: number
+            description: The open order reserve.
+        fundsOnHold:
+            type: number
+            description: The funds on hold.

@@ -15,7 +15,7 @@ protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> Rea
     if (ReadResponseAsString)
     {
         var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        responseText = ConvertUrlFormToJson(responseText);
+        responseText = ConvertToJson(responseText);
         try
         {
             var typedBody = {% if UseSystemTextJson %}System.Text.Json.JsonSerializer.Deserialize{% else %}Newtonsoft.Json.JsonConvert.DeserializeObject{% endif %}<T>(responseText, {% if UseRequestAndResponseSerializationSettings %}Response{% endif %}JsonSerializerSettings);
@@ -61,7 +61,7 @@ protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> Rea
     }
 }
 
-private string ConvertUrlFormToJson(string input)
+private string ConvertToJson(string input)
 {
 
     if (input.Contains("<?xml version=\"1.0\""))
@@ -77,7 +77,7 @@ private string ConvertUrlFormToJson(string input)
         return json;
                  
     }
-    else
+    else if (!input.TrimStart().StartsWith("{"))
     {
         // Parse the response into a collection using HttpUtility
         var queryParams = System.Web.HttpUtility.ParseQueryString(input);
@@ -90,6 +90,10 @@ private string ConvertUrlFormToJson(string input)
         } 
         return System.Text.Json.JsonSerializer.Serialize(dictionary);
     }
+    else
+    {
+        return input;
+    }
            
 }
 static object ConvertToDictionary(System.Xml.XmlNode node)
@@ -99,10 +103,10 @@ static object ConvertToDictionary(System.Xml.XmlNode node)
         string textValue = node.InnerText;
 
         // Handle numeric and boolean conversion
-        //if (long.TryParse(textValue, out long numericValue))
-        //{
-        //    return numericValue; // Return as a number
-        //}
+        if (long.TryParse(textValue, out long numericValue))
+        {
+            return numericValue; // Return as a number
+        }
         if (bool.TryParse(textValue, out bool boolValue))
         {
             return boolValue; // Return as a boolean

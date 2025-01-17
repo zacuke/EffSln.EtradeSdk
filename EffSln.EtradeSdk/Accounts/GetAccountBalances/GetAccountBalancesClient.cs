@@ -18,12 +18,12 @@
 #pragma warning disable 8625 // Disable "CS8625 Cannot convert null literal to non-nullable reference type"
 #pragma warning disable 8765 // Disable "CS8765 Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes)."
 
-namespace EffSln.EtradeSdk.Accounts
+namespace EffSln.EtradeSdk.Accounts.GetAccountBalances
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class AccountsClient 
+    public partial class GetAccountBalancesClient 
     {
         #pragma warning disable 8618
         private string _baseUrl;
@@ -34,7 +34,7 @@ namespace EffSln.EtradeSdk.Accounts
         private System.Text.Json.JsonSerializerOptions _instanceSettings;
 
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public AccountsClient(System.Net.Http.HttpClient httpClient)
+        public GetAccountBalancesClient(System.Net.Http.HttpClient httpClient)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             BaseUrl = "https://apisb.etrade.com/v1/accounts";
@@ -71,29 +71,43 @@ namespace EffSln.EtradeSdk.Accounts
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <summary>
-        /// List Accounts
+        /// Get Account Balances
         /// </summary>
         /// <remarks>
-        /// Returns a list of E*TRADE accounts for the current user.
+        /// Retrieve detailed balance information for a specified account for the current user.
         /// </remarks>
-        /// <returns>Successful operation</returns>
+        /// <param name="accountIdKey">The unique account key. Retrievable by calling the List Accounts API.</param>
+        /// <param name="instType">The account institution type for which the balance information is requested.</param>
+        /// <param name="accountType">The registered account type.</param>
+        /// <param name="realTimeNAV">If true, fetches the real-time balance. Default is false.</param>
+        /// <returns>Successful operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync()
+        public virtual System.Threading.Tasks.Task<BalanceResponseWrapper> GetAccountBalancesAsync(string accountIdKey, InstType instType, AccountType? accountType, bool? realTimeNAV)
         {
-            return ListAccountsAsync(System.Threading.CancellationToken.None);
+            return GetAccountBalancesAsync(accountIdKey, instType, accountType, realTimeNAV, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// List Accounts
+        /// Get Account Balances
         /// </summary>
         /// <remarks>
-        /// Returns a list of E*TRADE accounts for the current user.
+        /// Retrieve detailed balance information for a specified account for the current user.
         /// </remarks>
-        /// <returns>Successful operation</returns>
+        /// <param name="accountIdKey">The unique account key. Retrievable by calling the List Accounts API.</param>
+        /// <param name="instType">The account institution type for which the balance information is requested.</param>
+        /// <param name="accountType">The registered account type.</param>
+        /// <param name="realTimeNAV">If true, fetches the real-time balance. Default is false.</param>
+        /// <returns>Successful operation.</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccountListResponse> ListAccountsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BalanceResponseWrapper> GetAccountBalancesAsync(string accountIdKey, InstType instType, AccountType? accountType, bool? realTimeNAV, System.Threading.CancellationToken cancellationToken)
         {
+            if (accountIdKey == null)
+                throw new System.ArgumentNullException("accountIdKey");
+
+            if (instType == null)
+                throw new System.ArgumentNullException("instType");
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -101,12 +115,24 @@ namespace EffSln.EtradeSdk.Accounts
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/xml"));
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "list"
-                    urlBuilder_.Append("list");
+                    // Operation Path: "{accountIdKey}/balance"
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(accountIdKey, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/balance");
+                    urlBuilder_.Append('?');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("instType")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(instType, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    if (accountType != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("accountType")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(accountType, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (realTimeNAV != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("realTimeNAV")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(realTimeNAV, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -133,7 +159,7 @@ namespace EffSln.EtradeSdk.Accounts
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<AccountListResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<BalanceResponseWrapper>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -141,24 +167,14 @@ namespace EffSln.EtradeSdk.Accounts
                             return objectResponse_.Object;
                         }
                         else
-                        if (status_ == 204)
+                        if (status_ == 400)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<object>("No records available", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
-                        }
-                        else
-                        if (status_ == 500)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            throw new ApiException<object>("Internal server error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ApiException<object>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -205,7 +221,7 @@ namespace EffSln.EtradeSdk.Accounts
             if (ReadResponseAsString)
             {
                 var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                responseText = ConvertUrlFormToJson(responseText);
+                responseText = ConvertToJson(responseText);
                 try
                 {
                     var typedBody = System.Text.Json.JsonSerializer.Deserialize<T>(responseText, JsonSerializerSettings);
@@ -235,7 +251,7 @@ namespace EffSln.EtradeSdk.Accounts
             }
         }
 
-        private string ConvertUrlFormToJson(string input)
+        private string ConvertToJson(string input)
         {
 
             if (input.Contains("<?xml version=\"1.0\""))
@@ -251,7 +267,7 @@ namespace EffSln.EtradeSdk.Accounts
                 return json;
                  
             }
-            else
+            else if (!input.TrimStart().StartsWith("{"))
             {
                 // Parse the response into a collection using HttpUtility
                 var queryParams = System.Web.HttpUtility.ParseQueryString(input);
@@ -264,6 +280,10 @@ namespace EffSln.EtradeSdk.Accounts
                 } 
                 return System.Text.Json.JsonSerializer.Serialize(dictionary);
             }
+            else
+            {
+                return input;
+            }
            
         }
         static object ConvertToDictionary(System.Xml.XmlNode node)
@@ -273,10 +293,10 @@ namespace EffSln.EtradeSdk.Accounts
                 string textValue = node.InnerText;
 
                 // Handle numeric and boolean conversion
-                //if (long.TryParse(textValue, out long numericValue))
-                //{
-                //    return numericValue; // Return as a number
-                //}
+                if (long.TryParse(textValue, out long numericValue))
+                {
+                    return numericValue; // Return as a number
+                }
                 if (bool.TryParse(textValue, out bool boolValue))
                 {
                     return boolValue; // Return as a boolean
@@ -377,126 +397,232 @@ namespace EffSln.EtradeSdk.Accounts
         }
     }
 
-    /// <summary>
-    /// Response object containing an array of accounts.
-    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class AccountListResponse
+    public partial class BalanceResponseWrapper
     {
-        /// <summary>
-        /// Contains the list of accounts.
-        /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("Accounts")]
-        public Accounts Accounts { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("BalanceResponse")]
+        public BalanceResponse BalanceResponse { get; set; }
 
     }
 
-    /// <summary>
-    /// Details of a single account.
-    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Account
+    public partial class BalanceResponse
     {
         /// <summary>
-        /// The user's account ID.
+        /// The account ID for which the balance is requested.
         /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("accountId")]
-        public long AccountId { get; set; }
+        public string AccountId { get; set; }
 
         /// <summary>
-        /// The unique account key.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("accountIdKey")]
-        public string AccountIdKey { get; set; }
-
-        /// <summary>
-        /// The mode of the account.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("accountMode")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public AccountMode AccountMode { get; set; }
-
-        /// <summary>
-        /// Description of the account.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("accountDesc")]
-        public string AccountDesc { get; set; }
-
-        /// <summary>
-        /// The nickname for the account. Can be empty.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("accountName")]
-        public string AccountName { get; set; }
-
-        /// <summary>
-        /// The account type.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("accountType")]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public AccountType AccountType { get; set; }
-
-        /// <summary>
-        /// The institution type of the account.
+        /// The account institution type.
         /// </summary>
 
         [System.Text.Json.Serialization.JsonPropertyName("institutionType")]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public AccountInstitutionType InstitutionType { get; set; }
+        public BalanceResponseInstitutionType InstitutionType { get; set; }
 
         /// <summary>
-        /// The status of the account.
+        /// The registered account type.
         /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("accountStatus")]
+        [System.Text.Json.Serialization.JsonPropertyName("accountType")]
         [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
-        public AccountStatus AccountStatus { get; set; }
+        public BalanceResponseAccountType AccountType { get; set; }
 
         /// <summary>
-        /// The date when the account was closed.
+        /// The option approval level of the account.
         /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("closedDate")]
-        public long ClosedDate { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("optionLevel")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public BalanceResponseOptionLevel OptionLevel { get; set; }
 
         /// <summary>
-        /// Indicates if it is a Shareworks Account.
+        /// The description of the account.
         /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("shareWorksAccount")]
-        public bool ShareWorksAccount { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("accountDescription")]
+        public string AccountDescription { get; set; }
 
-        /// <summary>
-        /// The source of the Shareworks account.
-        /// </summary>
+        [System.Text.Json.Serialization.JsonPropertyName("Cash")]
+        public Cash Cash { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("shareWorksSource")]
-        public string ShareWorksSource { get; set; }
-
-        /// <summary>
-        /// Indicates if the account is a managed MSSB closed account.
-        /// </summary>
-
-        [System.Text.Json.Serialization.JsonPropertyName("fcManagedMssbClosedAccount")]
-        public bool FcManagedMssbClosedAccount { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("Computed")]
+        public ComputedBalance Computed { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Accounts
+    public partial class Cash
     {
         /// <summary>
-        /// List of accounts.
+        /// The funds reserved for open orders.
         /// </summary>
 
-        [System.Text.Json.Serialization.JsonPropertyName("Account")]
-        public System.Collections.Generic.ICollection<Account> Account { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("fundsForOpenOrdersCash")]
+        public double FundsForOpenOrdersCash { get; set; }
+
+        /// <summary>
+        /// The current cash balance of the money market or sweep deposit account.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("moneyMktBalance")]
+        public double MoneyMktBalance { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ComputedBalance
+    {
+        /// <summary>
+        /// The cash available for investments
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("cashAvailableForInvestment")]
+        public double CashAvailableForInvestment { get; set; }
+
+        /// <summary>
+        /// The cash available for withdrawal
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("cashAvailableForWithdrawal")]
+        public double CashAvailableForWithdrawal { get; set; }
+
+        /// <summary>
+        /// The net cash balance
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("netCash")]
+        public double NetCash { get; set; }
+
+        /// <summary>
+        /// The current cash balance
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("cashBalance")]
+        public double CashBalance { get; set; }
+
+        /// <summary>
+        /// The settled cash for investments
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("settledCashForInvestment")]
+        public double SettledCashForInvestment { get; set; }
+
+        /// <summary>
+        /// The unsettled cash for investments
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("unSettledCashForInvestment")]
+        public double UnSettledCashForInvestment { get; set; }
+
+        /// <summary>
+        /// The funds withheld from the purchasing power
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("fundsWithheldFromPurchasePower")]
+        public double FundsWithheldFromPurchasePower { get; set; }
+
+        /// <summary>
+        /// The funds withheld from withdrawal
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("fundsWithheldFromWithdrawal")]
+        public double FundsWithheldFromWithdrawal { get; set; }
+
+        /// <summary>
+        /// The margin account buying power
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("marginBuyingPower")]
+        public double MarginBuyingPower { get; set; }
+
+        /// <summary>
+        /// The cash account buying power
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("cashBuyingPower")]
+        public double CashBuyingPower { get; set; }
+
+        /// <summary>
+        /// The day trader margin account buying power
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("dtMarginBuyingPower")]
+        public double DtMarginBuyingPower { get; set; }
+
+        /// <summary>
+        /// The day trader cash account buying power
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("dtCashBuyingPower")]
+        public double DtCashBuyingPower { get; set; }
+
+        /// <summary>
+        /// The margin account balance
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("marginBalance")]
+        public double MarginBalance { get; set; }
+
+        /// <summary>
+        /// The short adjusted balance
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("shortAdjustBalance")]
+        public double ShortAdjustBalance { get; set; }
+
+        /// <summary>
+        /// The Regulation T equity
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("regtEquity")]
+        public double RegtEquity { get; set; }
+
+        /// <summary>
+        /// The Regulation T equity percentage
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("regtEquityPercent")]
+        public double RegtEquityPercent { get; set; }
+
+        /// <summary>
+        /// The current account balance
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountBalance")]
+        public double AccountBalance { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("OpenCalls")]
+        public OpenCalls OpenCalls { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("RealTimeValues")]
+        public RealTimeValues RealTimeValues { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("portfolioMargin")]
+        public PortfolioMargin PortfolioMargin { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ErrorResponse
+    {
+        /// <summary>
+        /// The error code.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("errorCode")]
+        public int ErrorCode { get; set; }
+
+        /// <summary>
+        /// The error message.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("message")]
+        public string Message { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -509,27 +635,176 @@ namespace EffSln.EtradeSdk.Accounts
 
     }
 
+    /// <summary>
+    /// Open calls related to the account.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum AccountMode
+    public partial class OpenCalls
+    {
+        /// <summary>
+        /// The minimum equity call.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("minEquityCall")]
+        public double MinEquityCall { get; set; }
+
+        /// <summary>
+        /// The federal call.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("fedCall")]
+        public double FedCall { get; set; }
+
+        /// <summary>
+        /// The cash call.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("cashCall")]
+        public double CashCall { get; set; }
+
+        /// <summary>
+        /// The house call.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("houseCall")]
+        public double HouseCall { get; set; }
+
+    }
+
+    /// <summary>
+    /// Real-time values related to the account.
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RealTimeValues
+    {
+        /// <summary>
+        /// The total account value.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalAccountValue")]
+        public double TotalAccountValue { get; set; }
+
+        /// <summary>
+        /// The net market value.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("netMv")]
+        public double NetMv { get; set; }
+
+        /// <summary>
+        /// The long net market value.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("netMvLong")]
+        public double NetMvLong { get; set; }
+
+        /// <summary>
+        /// The short net market value.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("netMvShort")]
+        public double NetMvShort { get; set; }
+
+        /// <summary>
+        /// The total long value.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalLongValue")]
+        public double TotalLongValue { get; set; }
+
+    }
+
+    /// <summary>
+    /// Portfolio margin-related details of the account.
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PortfolioMargin
+    {
+        /// <summary>
+        /// The margin account cash open order reserve.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("dtCashOpenOrderReserve")]
+        public double DtCashOpenOrderReserve { get; set; }
+
+        /// <summary>
+        /// The margin account margin open order reserve.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("dtMarginOpenOrderReserve")]
+        public double DtMarginOpenOrderReserve { get; set; }
+
+        /// <summary>
+        /// The liquidating equity.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("liquidatingEquity")]
+        public double LiquidatingEquity { get; set; }
+
+        /// <summary>
+        /// The house excess equity.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("houseExcessEquity")]
+        public double HouseExcessEquity { get; set; }
+
+        /// <summary>
+        /// The total house requirement.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalHouseRequirement")]
+        public double TotalHouseRequirement { get; set; }
+
+        /// <summary>
+        /// The excess equity minus the portfolio requirement.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("excessEquityMinusRequirement")]
+        public double ExcessEquityMinusRequirement { get; set; }
+
+        /// <summary>
+        /// The total margin requirements.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalMarginRqmts")]
+        public double TotalMarginRqmts { get; set; }
+
+        /// <summary>
+        /// The available excess equity.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("availExcessEquity")]
+        public double AvailExcessEquity { get; set; }
+
+        /// <summary>
+        /// The excess equity.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("excessEquity")]
+        public double ExcessEquity { get; set; }
+
+        /// <summary>
+        /// The open order reserve.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("openOrderReserve")]
+        public double OpenOrderReserve { get; set; }
+
+        /// <summary>
+        /// The funds on hold.
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("fundsOnHold")]
+        public double FundsOnHold { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum InstType
     {
 
-        [System.Runtime.Serialization.EnumMember(Value = @"CASH")]
-        CASH = 0,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"MARGIN")]
-        MARGIN = 1,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"CHECKING")]
-        CHECKING = 2,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"IRA")]
-        IRA = 3,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"SAVINGS")]
-        SAVINGS = 4,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"CD")]
-        CD = 5,
+        [System.Runtime.Serialization.EnumMember(Value = @"BROKERAGE")]
+        BROKERAGE = 0,
 
     }
 
@@ -795,23 +1070,308 @@ namespace EffSln.EtradeSdk.Accounts
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum AccountInstitutionType
+    public enum BalanceResponseInstitutionType
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"BROKERAGE")]
         BROKERAGE = 0,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"GLOBALTRADING")]
+        GLOBALTRADING = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NONUS")]
+        NONUS = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"STOCKPLAN")]
+        STOCKPLAN = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LENDING")]
+        LENDING = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HELOC")]
+        HELOC = 5,
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum AccountStatus
+    public enum BalanceResponseAccountType
     {
 
-        [System.Runtime.Serialization.EnumMember(Value = @"ACTIVE")]
-        ACTIVE = 0,
+        [System.Runtime.Serialization.EnumMember(Value = @"AMMCHK")]
+        AMMCHK = 0,
 
-        [System.Runtime.Serialization.EnumMember(Value = @"CLOSED")]
-        CLOSED = 1,
+        [System.Runtime.Serialization.EnumMember(Value = @"ARO")]
+        ARO = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BCHK")]
+        BCHK = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENFIRA")]
+        BENFIRA = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENFROTHIRA")]
+        BENFROTHIRA = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_ESTATE_IRA")]
+        BENF_ESTATE_IRA = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_MINOR_IRA")]
+        BENF_MINOR_IRA = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_ROTH_ESTATE_IRA")]
+        BENF_ROTH_ESTATE_IRA = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_ROTH_MINOR_IRA")]
+        BENF_ROTH_MINOR_IRA = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_ROTH_TRUST_IRA")]
+        BENF_ROTH_TRUST_IRA = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BENF_TRUST_IRA")]
+        BENF_TRUST_IRA = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BRKCD")]
+        BRKCD = 11,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BROKER")]
+        BROKER = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CASH")]
+        CASH = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"C_CORP")]
+        C_CORP = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CONTRIBUTORY")]
+        CONTRIBUTORY = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"COVERDELL_ESA")]
+        COVERDELL_ESA = 16,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CONVERSION_ROTH_IRA")]
+        CONVERSION_ROTH_IRA = 17,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CREDITCARD")]
+        CREDITCARD = 18,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"COMM_PROP")]
+        COMM_PROP = 19,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CONSERVATOR")]
+        CONSERVATOR = 20,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CORPORATION")]
+        CORPORATION = 21,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CSA")]
+        CSA = 22,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CUSTODIAL")]
+        CUSTODIAL = 23,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DVP")]
+        DVP = 24,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ESTATE")]
+        ESTATE = 25,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"EMPCHK")]
+        EMPCHK = 26,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"EMPMMCA")]
+        EMPMMCA = 27,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ETCHK")]
+        ETCHK = 28,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ETMMCHK")]
+        ETMMCHK = 29,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HEIL")]
+        HEIL = 30,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"HELOC")]
+        HELOC = 31,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INDCHK")]
+        INDCHK = 32,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INDIVIDUAL")]
+        INDIVIDUAL = 33,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INDIVIDUAL_K")]
+        INDIVIDUAL_K = 34,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB")]
+        INVCLUB = 35,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_C_CORP")]
+        INVCLUB_C_CORP = 36,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_LLC_C_CORP")]
+        INVCLUB_LLC_C_CORP = 37,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_LLC_PARTNERSHIP")]
+        INVCLUB_LLC_PARTNERSHIP = 38,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_LLC_S_CORP")]
+        INVCLUB_LLC_S_CORP = 39,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_PARTNERSHIP")]
+        INVCLUB_PARTNERSHIP = 40,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_S_CORP")]
+        INVCLUB_S_CORP = 41,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"INVCLUB_TRUST")]
+        INVCLUB_TRUST = 42,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"IRA_ROLLOVER")]
+        IRA_ROLLOVER = 43,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"JOINT")]
+        JOINT = 44,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"JTTEN")]
+        JTTEN = 45,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"JTWROS")]
+        JTWROS = 46,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLC_C_CORP")]
+        LLC_C_CORP = 47,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLC_PARTNERSHIP")]
+        LLC_PARTNERSHIP = 48,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLC_S_CORP")]
+        LLC_S_CORP = 49,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLP")]
+        LLP = 50,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLP_C_CORP")]
+        LLP_C_CORP = 51,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LLP_S_CORP")]
+        LLP_S_CORP = 52,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"IRA")]
+        IRA = 53,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"IRACD")]
+        IRACD = 54,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MONEY_PURCHASE")]
+        MONEY_PURCHASE = 55,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MARGIN")]
+        MARGIN = 56,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MRCHK")]
+        MRCHK = 57,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"MUTUAL_FUND")]
+        MUTUAL_FUND = 58,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NONCUSTODIAL")]
+        NONCUSTODIAL = 59,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NON_PROFIT")]
+        NON_PROFIT = 60,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"OTHER")]
+        OTHER = 61,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PARTNER")]
+        PARTNER = 62,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PARTNERSHIP")]
+        PARTNERSHIP = 63,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PARTNERSHIP_C_CORP")]
+        PARTNERSHIP_C_CORP = 64,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PARTNERSHIP_S_CORP")]
+        PARTNERSHIP_S_CORP = 65,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PDT_ACCOUNT")]
+        PDT_ACCOUNT = 66,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PM_ACCOUNT")]
+        PM_ACCOUNT = 67,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PREFCD")]
+        PREFCD = 68,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PREFIRACD")]
+        PREFIRACD = 69,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PROFIT_SHARING")]
+        PROFIT_SHARING = 70,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PROPRIETARY")]
+        PROPRIETARY = 71,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"REGCD")]
+        REGCD = 72,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ROTHIRA")]
+        ROTHIRA = 73,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ROTH_INDIVIDUAL_K")]
+        ROTH_INDIVIDUAL_K = 74,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ROTH_IRA_MINORS")]
+        ROTH_IRA_MINORS = 75,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SARSEPIRA")]
+        SARSEPIRA = 76,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"S_CORP")]
+        S_CORP = 77,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SEPIRA")]
+        SEPIRA = 78,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SIMPLE_IRA")]
+        SIMPLE_IRA = 79,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TIC")]
+        TIC = 80,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TRD_IRA_MINORS")]
+        TRD_IRA_MINORS = 81,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TRUST")]
+        TRUST = 82,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VARCD")]
+        VARCD = 83,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"VARIRACD")]
+        VARIRACD = 84,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum BalanceResponseOptionLevel
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NO_OPTIONS")]
+        NO_OPTIONS = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LEVEL_1")]
+        LEVEL_1 = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LEVEL_2")]
+        LEVEL_2 = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LEVEL_3")]
+        LEVEL_3 = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"LEVEL_4")]
+        LEVEL_4 = 4,
 
     }
 

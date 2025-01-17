@@ -9,9 +9,14 @@ Get-ChildItem -Recurse -Path $cwd -Filter *.yaml | ForEach-Object {
     $outputFile = [System.IO.Path]::ChangeExtension($outputFile, ".cs")
 
     $parts = $outputFile  -split '\\'
-    $namespace = "$($parts[0]).$($parts[1])"
  
-    $fileName = $_.BaseName
+    $fileName = $_.BaseName 
+ 
+    $namespace = "$($parts[0]).$($parts[1])"
+    if ($parts[2] -notmatch "cs$") {
+        $namespace = "$namespace.$($parts[2])"
+    }
+
     Write-Host "Processing $inputFile -> $outputFile with namespace $namespace"
     nswag openapi2csclient /input:$inputFile /output:$outputFile /namespace:$namespace /JsonLibrary:SystemTextJson /ClassName:$fileName /TemplateDirectory:openapi/templates
 }

@@ -85,7 +85,10 @@ public class OAuthDelegatingHandler : DelegatingHandler
             //parameters.Add("oauth_version", "1.0");
         }
 
-        var signature = GenerateSignature(httpMethod, url, parameters, _secret, oauth_token_secret);
+        GetQueryStringMap(url, ref parameters);
+        Uri uri = new Uri(url);
+ 
+        var signature = GenerateSignature(httpMethod, $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath}", parameters, _secret, oauth_token_secret);
 
         // 2. Build the dynamically signed Authorization header
         parameters.Add("oauth_signature", signature);
@@ -175,5 +178,41 @@ public class OAuthDelegatingHandler : DelegatingHandler
             }
         }
         return sb.ToString();
+    }
+
+    private void GetQueryStringMap(string url, ref Dictionary<string, string> queryParamMap)
+    {
+        // Ensure the dictionary is initialized
+        if (queryParamMap == null)
+        {
+            queryParamMap = new Dictionary<string, string>();
+        }
+
+        // Extract the query string from the URL
+        var uri = new Uri(url);
+        string queryString = uri.Query;
+
+        if (!string.IsNullOrEmpty(queryString))
+        {
+            // Remove the leading '?' from the query string
+            queryString = queryString.TrimStart('?');
+
+            // Split the query string by '&'
+            foreach (string keyValue in queryString.Split('&'))
+            {
+                // Split on '=' to separate key and value
+                string[] p = keyValue.Split('=');
+
+                // Ensure that we handle potential issues where there might not be a key-value pair
+                if (p.Length == 2)
+                {
+                    queryParamMap[p[0]] =  p[1] ;
+                }
+                else if (p.Length == 1) // Handle cases where there's a key with no value
+                {
+                    queryParamMap[p[0]] =  string.Empty ;
+                }
+            }
+        }
     }
 }
